@@ -16,7 +16,7 @@ import java.util.Optional;
 public class PostController {
     @Autowired
     PostRepository postRepository;
-
+    @CrossOrigin(origins = "http://localhost:3000" ,allowCredentials = "true")
     @GetMapping("/get-all-posts")
     public ResponseEntity<List<Post>> getAllPosts(){
         try {
