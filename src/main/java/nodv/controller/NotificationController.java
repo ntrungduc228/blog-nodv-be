@@ -1,5 +1,6 @@
 package nodv.controller;
 
+import nodv.exception.NotFoundException;
 import nodv.model.Notification;
 import nodv.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,30 +17,23 @@ public class NotificationController {
     @Autowired
     NotificationRepository notificationRepository;
 
-    @GetMapping("/")
-    public ResponseEntity<List<Notification>> getAllNotifications(){
-        try {
-            List<Notification> notifications = new ArrayList<Notification>();
-            notificationRepository.findAll().forEach(notifications::add);
-
-            if(notifications.isEmpty())
-                return  new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-            return new ResponseEntity<>(notifications, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("")
+    public ResponseEntity<List<Notification>> getAllNotifications() {
+        List<Notification> notifications = new ArrayList<Notification>();
+        notificationRepository.findAll().forEach(notifications::add);
+        if (notifications.isEmpty()) {
+            throw new NotFoundException("Test");
         }
+        return new ResponseEntity<>(notifications, HttpStatus.OK);
     }
 
     @GetMapping("/user/{id}")
-    public  ResponseEntity<List<Notification>>getNotificationsOfUser(String Id) {
+    public ResponseEntity<List<Notification>> getNotificationsOfUser(String Id) {
         try {
             List<Notification> notifications = new ArrayList<>();
             notificationRepository.findByReceiverId(Id).forEach(notifications::add);
-            if(notifications.isEmpty())
-            {
-                return  new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+            if (notifications.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(notifications, HttpStatus.OK);
         } catch (Exception e) {

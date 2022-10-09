@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface NotificationRepository extends MongoRepository<Notification, String> {
     @Query(value = "{'receiver.id: ?0'}")
+    List<Notification> findByReceiverId(String id);
 }
