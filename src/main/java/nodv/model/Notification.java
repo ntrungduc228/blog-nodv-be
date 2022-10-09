@@ -1,5 +1,4 @@
 package nodv.model;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,3 +19,4 @@ public class Notification {
     private String receivedId;
     private String type;
 }
+

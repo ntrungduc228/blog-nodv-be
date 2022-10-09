@@ -18,10 +18,7 @@ import java.util.Optional;
 public class PostController {
     @Autowired
     PostRepository postRepository;
-
-    @Autowired
     PostService postService;
-
     @GetMapping("")
     public ResponseEntity<Object> getAllPosts(){
         try {
