@@ -1,4 +1,5 @@
 package nodv.model;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,13 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="notifications")
-public class Notification {
+@Document(value="follows")
+public class Follow {
     @Id
     private String id;
-    private String link;
-    private String senderId;
-    private String receivedId;
-    private String type;
+    private String following;
+    private String follower;
 }
-
