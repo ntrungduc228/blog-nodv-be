@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-enum Role {
-    USER, ADMIN
-}
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,7 +27,15 @@ public class User {
     private Boolean gender;
     private Integer followings;
     private Integer followers;
-    private Role role;
+    @DBRef
+//    private Role role;
+    private Set<Role> roles = new HashSet<>();
     private Boolean isActive;
 
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }

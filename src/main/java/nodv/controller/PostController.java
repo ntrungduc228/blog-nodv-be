@@ -1,5 +1,6 @@
 package nodv.controller;
 
+import nodv.exception.NotFoundException;
 import nodv.model.Post;
 import nodv.repository.PostRepository;
 import nodv.service.PostService;
@@ -13,16 +14,19 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000" ,allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequestMapping("/post")
 public class PostController {
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
     PostService postService;
+
     @GetMapping("")
-    public ResponseEntity<Object> getAllPosts(){
+    public ResponseEntity<Object> getAllPosts() {
         try {
-           List<Post> list = postService.findAll();
+            List<Post> list = postService.findAll();
             if (list.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -33,20 +37,19 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getPostById(@PathVariable String id){
-        try{
+    public ResponseEntity<?> getPostById(@PathVariable String id) {
+        try {
             return new ResponseEntity<>(postService.findById(id), HttpStatus.OK);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("e " + e);
-            return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new NotFoundException(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 
     }
 
     @PostMapping("/create-post")
-    public ResponseEntity<Post> createPost(@RequestBody Post post){
+    public ResponseEntity<Post> createPost(@RequestBody Post post) {
         try {
 //            Post newPost = new Post();
             Post _post = postRepository.save(post);

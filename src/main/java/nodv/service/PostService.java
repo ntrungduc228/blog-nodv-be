@@ -1,5 +1,6 @@
 package nodv.service;
 
+import nodv.exception.NotFoundException;
 import nodv.model.Post;
 import nodv.model.User;
 import nodv.repository.PostRepository;
@@ -22,19 +23,21 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Optional<Post> findById(String id) throws Exception {
+    public Optional<Post> findById(String id) {
         Optional<Post> post = postRepository.findById(id);
 
-        Optional<User> user = userRepository.findById(post.get().getUserId());
-        post.get().setUser(user.get());
-//        if(!post.isPresent()){
-//            throw new Exception("Post is not found");
-//        }
+        if (post.get().getUserId() != null) {
+            Optional<User> user = userRepository.findById(post.get().getUserId());
+            post.get().setUser(user.get());
+        }
+        if (!post.isPresent()) {
+            throw new NotFoundException("Post is not found");
+        }
         return post;
 
     }
 
-    public Post createNew(Post post){
+    public Post createNew(Post post) {
         return postRepository.save(post);
     }
 
