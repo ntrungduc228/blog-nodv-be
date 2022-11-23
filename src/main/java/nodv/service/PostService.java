@@ -23,6 +23,7 @@ public class PostService {
     }
 
     public Optional<Post> findById(String id) throws Exception {
+        System.out.println("e " + id);
         Optional<Post> post = postRepository.findById(id);
 
         Optional<User> user = userRepository.findById(post.get().getUserId());
@@ -34,7 +35,7 @@ public class PostService {
 
     }
 
-    public Post createNew(Post post){
+    public Post createNew(Post post) {
         return postRepository.save(post);
     }
 
