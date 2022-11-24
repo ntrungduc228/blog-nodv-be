@@ -35,7 +35,7 @@ public class UserController {
     @GetMapping("/{email}")
     public ResponseEntity<Object> getUserByEmail(@PathVariable String email) {
         try {
-            List<User> user = userService.findByEmail(email);
+            User user = userService.findByEmail(email);
             System.out.println(user);
             return new ResponseEntity<>(userService.findByEmail(email), HttpStatus.OK);
         } catch (Exception e) {

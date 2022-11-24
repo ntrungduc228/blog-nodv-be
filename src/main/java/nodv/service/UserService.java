@@ -5,5 +5,5 @@ import nodv.model.User;
 import java.util.List;
 
 public interface UserService {
-    List<User> findByEmail(String email);
+    User findByEmail(String email);
 }
