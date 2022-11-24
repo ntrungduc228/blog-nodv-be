@@ -14,45 +14,48 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-@RequestMapping("/post")
+@RequestMapping("/api/posts") //localhost://8081/api/posts    - method:....
 public class PostController {
     @Autowired
-    PostRepository postRepository;
     PostService postService;
 
+    // get posts
     @GetMapping("")
-    public ResponseEntity<Object> getAllPosts() {
-        try {
-            List<Post> list = postRepository.findAll();
-            if (list.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(list, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> getPosts() {
+        List<Post> post = postService.findAll();
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
+    // get post by id
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getPostById(@PathVariable String id) {
-        try {
-            return new ResponseEntity<>(postService.findById(id), HttpStatus.OK);
-        } catch (Exception e) {
-            System.out.println("e " + e);
-            return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-
+    public ResponseEntity<?> getPostById(@PathVariable String id) throws Exception {
+        System.out.println(id);
+        Optional<Post> post = postService.findById(id);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
-    @PostMapping("/create-post")
-    public ResponseEntity<Post> createPost(@RequestBody Post post) {
-        try {
-//            Post newPost = new Post();
-            Post _post = postRepository.save(post);
-            return new ResponseEntity<>(_post, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    // create post
+    @PostMapping("")
+    public ResponseEntity<?> createPost(@RequestBody Post post) {
+        Post newPost = postService.createPost(post);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePost(@RequestBody Post post, @PathVariable String id) throws Exception {
+        Post newPost = postService.updatePost(id, post);
+        return new ResponseEntity<>(newPost, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable String id) throws Exception {
+        postService.deletePost(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/like")
+    public ResponseEntity<?> likePost(@PathVariable String id) throws Exception {
+        postService.deletePost(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 }
