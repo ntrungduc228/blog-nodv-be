@@ -5,15 +5,16 @@ import nodv.model.User;
 import nodv.security.TokenProvider;
 import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @Slf4j
 public class UserController {
     @Autowired
@@ -21,16 +22,28 @@ public class UserController {
 
     @Autowired
     TokenProvider tokenProvider;
-    
+
     @GetMapping("/{email}")
-    public ResponseEntity<Object> getUserByEmail(@PathVariable String email) {
-        try {
-            User user = userService.findByEmail(email);
-            System.out.println(user);
-            return new ResponseEntity<>(userService.findByEmail(email), HttpStatus.OK);
-        } catch (Exception e) {
-            System.out.println("e " + e);
-            return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> getUser(@PathVariable String email) {
+        User user = userService.findByEmail(email);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PutMapping("")
+    public ResponseEntity<?> updateUser(@RequestBody User user, HttpServletRequest request) {
+        String token = tokenProvider.getJwtFromRequest(request);
+        String userId = tokenProvider.getUserIdFromToken(token);
+        User updateUser = userService.updateBasicProfile(user, userId);
+        return new ResponseEntity<>(updateUser, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchUser(
+            @RequestParam(value = "q", required = true) String name,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "5", required = false) int limit
+    ) {
+        Page<User> users = userService.search(name, page, limit);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }
