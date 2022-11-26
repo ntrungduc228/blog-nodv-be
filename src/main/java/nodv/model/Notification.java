@@ -1,4 +1,5 @@
 package nodv.model;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="notifications")
+@Document(value = "notifications")
 public class Notification {
     @Id
     private String id;

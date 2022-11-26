@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="likes")
+@Document(value = "likes")
 public class Like {
     @Id
     private String id;
