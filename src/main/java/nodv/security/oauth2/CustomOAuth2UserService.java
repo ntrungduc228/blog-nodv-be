@@ -2,12 +2,13 @@ package nodv.security.oauth2;
 
 import nodv.exception.OAuth2AuthenticationProcessingException;
 import nodv.model.AuthProvider;
+import nodv.model.Role;
 import nodv.model.User;
 import nodv.repository.UserRepository;
+import nodv.security.CustomUserDetailsService;
 import nodv.security.UserPrincipal;
 import nodv.security.oauth2.user.OAuth2UserInfo;
 import nodv.security.oauth2.user.OAuth2UserInfoFactory;
-import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -24,7 +25,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private UserService userService;
+    private CustomUserDetailsService userDetailsService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -46,16 +47,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
         }
-
-        User user = userService.findByEmail(oAuth2UserInfo.getEmail());
-        System.out.println(user);
-
+        User user = userDetailsService.findByEmail(oAuth2UserInfo.getEmail());
         if (user != null) {
-            if (!user.getProvider().equals(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()))) {
-                throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
-                        user.getProvider() + " account. Please use your " + user.getProvider() +
-                        " account to login.");
-            }
             user = updateExistingUser(user, oAuth2UserInfo);
         } else {
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
@@ -72,6 +65,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setUsername(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
         user.setAvatar(oAuth2UserInfo.getImageUrl());
+        user.setRole(Role.USER);
         return userRepository.save(user);
     }
 

@@ -7,20 +7,25 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "posts")
-public class Post {
+public class Post extends AuditMetadata {
     @Id
     private String id;
     private String title;
+    private String subtitle;
     private String content;
     private String thumbnail;
     private String userId;
     private Integer likes;
+    private Integer timeRead;
+    private List<String> topic;
+    @DBRef
     private User user;
 }

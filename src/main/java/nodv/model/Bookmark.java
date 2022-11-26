@@ -14,7 +14,7 @@ import java.util.Optional;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="bookmarks")
+@Document(value = "bookmarks")
 public class Bookmark {
     @Id
     private String id;
