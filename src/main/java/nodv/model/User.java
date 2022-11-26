@@ -38,5 +38,8 @@ public class User {
     private Boolean isActive;
     private AuthProvider provider;
     private String providerId;
+    private String bookmarkId;
+
+    private Bookmark bookmark;
 
 }

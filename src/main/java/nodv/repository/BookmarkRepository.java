@@ -3,5 +3,8 @@ package nodv.repository;
 import nodv.model.Bookmark;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.Optional;
+
 public interface BookmarkRepository extends MongoRepository<Bookmark, String> {
+    Optional<Bookmark> findByUserId(String userId);
 }
