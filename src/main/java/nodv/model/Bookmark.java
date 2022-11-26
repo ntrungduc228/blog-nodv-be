@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="bookmarks")
+@Document(value = "bookmarks")
 public class Bookmark {
     @Id
     private String id;

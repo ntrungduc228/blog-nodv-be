@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="comments")
+@Document(value = "comments")
 public class Comment {
     @Id
     private String id;
