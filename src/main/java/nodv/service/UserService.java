@@ -23,6 +23,7 @@ public class UserService {
         if (users.toArray().length < 1)
             return null;
         return users.get(0);
+
     }
 
     public Optional<User> findById(String id) {
