@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value="follows")
+@Document(value = "follows")
 public class Follow {
     @Id
     private String id;

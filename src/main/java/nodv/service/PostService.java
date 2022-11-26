@@ -2,11 +2,13 @@ package nodv.service;
 
 import nodv.exception.NotFoundException;
 import nodv.model.Post;
+import nodv.model.User;
 import nodv.repository.PostRepository;
-import nodv.repository.UserRepository;
+import nodv.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,40 +17,41 @@ public class PostService {
     @Autowired
     PostRepository postRepository;
     @Autowired
-    UserRepository userRepository;
+    UserService userService;
+
+    @Autowired
+    TokenProvider tokenProvider;
 
     public List<Post> findAll() {
         return postRepository.findAll();
     } // mongodb-method
 
-    public Optional<Post> findById(String id) throws Exception {
+    public Post findById(String id) throws Exception {
 
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) {
             throw new Exception("Post is not found");
         }
-//        Optional<User> user = userRepository.findById(post.get().getUserId());
-//        user.ifPresent(value -> post.get().setUser(value));
-
-        return post;
+        return post.get();
     }
 
-    public Post createPost(Post post) {
+    public Post createPost(Post post, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User user = userService.findById(userId);
+        post.setUserId(user.getId());
+        post.setUser(user);
         return postRepository.save(post);
     }
 
     public Post updatePost(String id, Post post) throws Exception {
-        Optional<Post> updatePost = findById(id);
-        if (updatePost.isEmpty()) {
-            throw new Exception("post not found");
-        }
-        updatePost.get().setTitle(post.getTitle());
-        updatePost.get().setContent(post.getContent());
-        updatePost.get().setThumbnail(post.getThumbnail());
-        return postRepository.save(updatePost.get());
+        Post updatePost = findById(id);
+        updatePost.setTitle(post.getTitle());
+        updatePost.setContent(post.getContent());
+        updatePost.setThumbnail(post.getThumbnail());
+        return postRepository.save(updatePost);
     }
 
-    public void deletePost(String id) throws Exception {
+    public void deletePost(String id) {
         Optional<Post> post = postRepository.findById(id);
         if (post.isPresent()) {
             postRepository.deleteById(id);

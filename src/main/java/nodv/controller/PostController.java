@@ -1,16 +1,14 @@
 package nodv.controller;
 
 import nodv.model.Post;
-import nodv.repository.PostRepository;
 import nodv.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -21,7 +19,11 @@ public class PostController {
 
     // get posts
     @GetMapping("")
-    public ResponseEntity<?> getPosts() {
+    public ResponseEntity<?> getPosts(
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            @RequestParam(value = "limit", defaultValue = "1", required = true) int page
+    ) {
+        System.out.println(limit);
         List<Post> post = postService.findAll();
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
@@ -29,15 +31,14 @@ public class PostController {
     // get post by id
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable String id) throws Exception {
-        System.out.println(id);
-        Optional<Post> post = postService.findById(id);
+        Post post = postService.findById(id);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     // create post
     @PostMapping("")
-    public ResponseEntity<?> createPost(@RequestBody Post post) {
-        Post newPost = postService.createPost(post);
+    public ResponseEntity<?> createPost(@RequestBody Post post, HttpServletRequest request) {
+        Post newPost = postService.createPost(post, request);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
