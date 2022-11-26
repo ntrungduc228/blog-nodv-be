@@ -1,4 +1,4 @@
-package nodv.model;
+package nodv.security.model;
 
 public enum AuthProvider {
     local,
