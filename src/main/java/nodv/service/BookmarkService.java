@@ -42,8 +42,8 @@ public class BookmarkService {
     public Bookmark addPostIdToBookmark(String userId, String postId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
         if(!bookmark.isPresent()){
-            BookmarkDTO bookmarkDTO = new BookmarkDTO(userId, postId);
-            bookmark = Optional.ofNullable(this.createBookmark(bookmarkDTO));
+//            BookmarkDTO bookmarkDTO = new BookmarkDTO(userId, postId);
+            bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, postId)));
         }
 
         for(String findPostId: bookmark.get().getPostIds()){
@@ -59,7 +59,8 @@ public class BookmarkService {
         update.push("postIds", postId);
         mongoTemplate.updateFirst(query, update, Bookmark.class);
 
-         bookmark = bookmarkRepository.findByUserId(userId);
+        bookmark = bookmarkRepository.findByUserId(userId);
+
         return bookmark.get();
     }
 
@@ -86,16 +87,17 @@ public class BookmarkService {
             throw new Exception("Bookmark by userid not found");
         }
 
-//        if(bookmark.get().getPostIds().size() > 0 ){
-//            List<Post> posts = new ArrayList<>();
-//            for(String postId : bookmark.get().getPostIds()){
-//                posts.add(postRepository.findById(postId).get());
-//            }
-//            bookmark.get().setPosts(posts);
+        if(bookmark.get().getPostIds().size() > 0 ){
+            List<Post> posts = new ArrayList<>();
+            for(String postId : bookmark.get().getPostIds()){
+                Optional<Post> post = postRepository.findById(postId);
+               if(post.isPresent()) {posts.add(post.get());}
+            }
+            bookmark.get().setPosts(posts);
 //            for(Post post: posts){
 //                System.out.println("post ok " + post.getTitle());
 //            }
-//        }
+        }
 
 
 
