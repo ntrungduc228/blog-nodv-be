@@ -17,24 +17,21 @@ public class LikeService {
     LikeRepository likeRepository;
     @Autowired
     UserService userService;
-    @Autowired
-    TokenProvider tokenProvider;
-    public List<Like> findAllLike() {
+
+    public List<Like> findAll() {
         return likeRepository.findAll();
     }
 
-    public Like createLike(String postId, HttpServletRequest request){
+    public Like createLike(String postId, String userId){
         Like like = new Like();
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-
         like.setUserId(userId);
         like.setPostId(postId);
 
         return likeRepository.save(like);
     }
 
-    public void deleteLike(String postId, HttpServletRequest request){
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+    public void deleteLike(String postId, String userId){
+
         String idLike = "";
         Optional<Like> like = likeRepository.findLike(userId, postId);
         if (like.isPresent()){

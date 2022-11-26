@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import nodv.model.Like;
+import nodv.security.TokenProvider;
 import nodv.service.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,23 +17,26 @@ import java.util.List;
 public class LikeController {
     @Autowired
     LikeService likeService;
-
-    @GetMapping("/getAll")
+    @Autowired
+    TokenProvider tokenProvider;
+    @GetMapping("")
     public ResponseEntity<?> getLikes() {
-        List<Like> likes = likeService.findAllLike();
+        List<Like> likes = likeService.findAll();
         return new ResponseEntity<>(likes, HttpStatus.OK);
     }
 
-    @PostMapping("/likePost/{idPost}")
-    public ResponseEntity<?> createLike(@PathVariable String idPost, HttpServletRequest request) throws Exception {
-        Like newLike = likeService.createLike(idPost, request);
+    @PostMapping("/{postId}")
+    public ResponseEntity<?> createLike(@PathVariable String postId, HttpServletRequest request) throws Exception {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Like newLike = likeService.createLike(postId, userId);
         return new ResponseEntity<>(newLike, HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteLike/{idPost}")
-    public ResponseEntity<?> deleteLike(@PathVariable String idPost, HttpServletRequest request) throws Exception {
-        likeService.deleteLike(idPost, request);
-        return new ResponseEntity<>(idPost, HttpStatus.OK);
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deleteLike(@PathVariable String postId, HttpServletRequest request) throws Exception {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        likeService.deleteLike(postId, userId);
+        return new ResponseEntity<>(postId, HttpStatus.OK);
     }
 
 }
