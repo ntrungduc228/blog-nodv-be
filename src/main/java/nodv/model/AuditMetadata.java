@@ -1,4 +1,4 @@
-package nodv.security.model;
+package nodv.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
