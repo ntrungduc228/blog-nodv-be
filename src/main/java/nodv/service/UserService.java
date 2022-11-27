@@ -17,11 +17,13 @@ public class UserService {
     UserRepository userRepository;
 
     public User findByEmail(String email) {
+
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             throw new NotFoundException("User not found");
         }
         return user.get();
+
     }
 
     public User findById(String id) {
