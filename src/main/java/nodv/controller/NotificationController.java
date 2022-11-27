@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -40,6 +39,7 @@ public class NotificationController {
         Notification newNotification = notificationService.createNotification(notification,userId);
         return new ResponseEntity<>(notification,HttpStatus.OK);
     }
+    //update
     @PutMapping("/{id}")
     public ResponseEntity<?> updateNotification(@PathVariable String id) throws Exception {
         Notification updateNotification = notificationService.updateNotification(id);
