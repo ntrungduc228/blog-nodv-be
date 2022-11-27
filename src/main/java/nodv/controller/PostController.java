@@ -78,13 +78,6 @@ public class PostController {
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}/like")
-    public ResponseEntity<?> likePost(@PathVariable String id, HttpServletRequest request) {
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        postService.deletePost(id, userId);
-        return new ResponseEntity<>(id, HttpStatus.OK);
-    }
-
     @PatchMapping("/{id}/publish")
     public ResponseEntity<?> publishPost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
@@ -99,11 +92,18 @@ public class PostController {
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
-//    @PatchMapping("/{id}/like")
-//    public ResponseEntity<?> likePost(@PathVariable String id, HttpServletRequest request) {
-//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-////        postService.likePost(id, userId);
-//        return new ResponseEntity<>(id, HttpStatus.OK);
-//    }
+    @PatchMapping("/{id}/like")
+    public ResponseEntity<?> likePost(@PathVariable String id, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Post post = postService.likePost(id, userId);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/unlike")
+    public ResponseEntity<?> unlikePost(@PathVariable String id, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Post post = postService.unlikePost(id, userId);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
 
 }

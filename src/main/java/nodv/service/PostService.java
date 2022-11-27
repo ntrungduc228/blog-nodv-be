@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +28,8 @@ public class PostService {
 
     @Autowired
     TokenProvider tokenProvider;
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     // mongodb-method
     public Post findById(String id) {
@@ -83,4 +89,23 @@ public class PostService {
     }
 
 
+    public Post likePost(String id, String userId) {
+        Query query = new Query();
+        Criteria criteria = Criteria.where("id").is(id);
+        query.addCriteria(criteria);
+        Update update = new Update();
+        update.push("userLikeIds", userId);
+        mongoTemplate.updateFirst(query, update, Post.class);
+        return findById(id);
+    }
+
+    public Post unlikePost(String id, String userId) {
+        Query query = new Query();
+        Criteria criteria = Criteria.where("id").is(id);
+        query.addCriteria(criteria);
+        Update update = new Update();
+        update.pull("userLikeIds", userId);
+        mongoTemplate.updateFirst(query, update, Post.class);
+        return findById(id);
+    }
 }
