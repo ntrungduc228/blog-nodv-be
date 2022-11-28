@@ -6,9 +6,11 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 public class WebSocketController {
     @Autowired
@@ -16,7 +18,8 @@ public class WebSocketController {
 
     @MessageMapping("/message")
     @SendTo("/topic/message")
-    public  String receiveMessage(@Payload String string) {
+    public String receiveMessage(@Payload String string) {
         return string;
     }
+
 }
