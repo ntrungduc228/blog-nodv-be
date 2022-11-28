@@ -44,6 +44,6 @@ public class UserController {
             @RequestParam(value = "limit", defaultValue = "5", required = false) int limit
     ) {
         Page<User> users = userService.search(name, page, limit);
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return new ResponseEntity<>(users.get(), HttpStatus.OK);
     }
 }
