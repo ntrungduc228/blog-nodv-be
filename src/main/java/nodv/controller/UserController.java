@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import nodv.model.Post;
 import nodv.model.User;
 import nodv.security.TokenProvider;
 import nodv.service.UserService;
@@ -45,5 +46,19 @@ public class UserController {
     ) {
         Page<User> users = userService.search(name, page, limit);
         return new ResponseEntity<>(users.get(), HttpStatus.OK);
+    }
+
+    @PatchMapping("/follow/{idFollow}")
+    public ResponseEntity<?> followUser(@PathVariable String idFollow, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User user = userService.followUser(userId, idFollow);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PatchMapping("/unfollow/{idUnfollow}")
+    public ResponseEntity<?> unFollowUser(@PathVariable String idUnfollow, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User user = userService.unfollowUser(userId, idUnfollow);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

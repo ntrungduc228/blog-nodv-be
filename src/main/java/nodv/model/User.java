@@ -42,7 +42,7 @@ public class User {
     //tao 2 mang liststring: followingId, FollowerId
     //follow, unfollow
     //thoa 2 dk: user follow ton tai
-    //update er.nguoitheodoi -ing.thangfollow cap nhap hai chieu
+    //update er.dcTheoDoi -ing.dangTheoDoi cap nhap hai chieu
 
     private List<String> followingId;
     private List<String> followerId;
