@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,4 +39,12 @@ public class User {
     private Bookmark bookmark;
 
     private String bio;
+    //tao 2 mang liststring: followingId, FollowerId
+    //follow, unfollow
+    //thoa 2 dk: user follow ton tai
+    //update er.nguoitheodoi -ing.thangfollow cap nhap hai chieu
+
+    private List<String> followingId;
+    private List<String> followerId;
+
 }
