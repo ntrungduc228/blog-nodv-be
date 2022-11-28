@@ -1,5 +1,6 @@
 package nodv.service;
 
+import nodv.exception.NotFoundException;
 import nodv.model.Notification;
 import nodv.model.User;
 import nodv.repository.NotificationRepository;
@@ -16,20 +17,10 @@ public class NotificationService {
     @Autowired
     UserService userService;
 
-    public List<Notification> findByReceiverId(String receiverId,Boolean isRead) throws Exception {
-        List<Notification> notification;
-        if(isRead){
-            notification=notificationRepository.findByReceiverIdAndIsReadIsTrue(receiverId);
-        }else if(!isRead){
-            notification=notificationRepository.findByReceiverIdAndIsReadIsFalse(receiverId);
-        }else{
-            notification=notificationRepository.findByReceiverId(receiverId);
-        }
-
-        if(notification.size()==0) {
-            throw new Exception("Notification not found");
-        }
-        return notification;
+    public List<Notification> findByReceiverId(String receiverId, String isRead) throws Exception {
+        if(isRead == null)
+            return notificationRepository.findByReceiverId(receiverId);
+        return notificationRepository.findByReceiverIdAndIsRead(receiverId, Boolean.valueOf(isRead));
     }
 
     public Notification createNotification(Notification notification,String userId){
@@ -47,7 +38,7 @@ public class NotificationService {
     public Notification updateNotification(String id) throws Exception {
       Optional<Notification> updateNotification = notificationRepository.findById(id);
         if (updateNotification.isEmpty()) {
-            throw new Exception("notification not found");
+            throw new NotFoundException("notification not found");
         }
         updateNotification.get().setIsRead(true);
         return notificationRepository.save(updateNotification.get());

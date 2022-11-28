@@ -30,7 +30,7 @@ public class PostService {
 
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) {
-            throw new Exception("Post is not found");
+            throw new NotFoundException("Post is not found");
         }
         return post.get();
     }
