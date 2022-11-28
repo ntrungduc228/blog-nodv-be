@@ -1,5 +1,6 @@
 package nodv.service;
 
+import nodv.exception.BadRequestException;
 import nodv.exception.NotFoundException;
 import nodv.model.Like;
 import nodv.repository.LikeRepository;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,16 +26,23 @@ public class LikeService {
 
     public Like createLike(String postId, String userId){
         Like like = new Like();
-        like.setUserId(userId);
-        like.setPostId(postId);
-
+        Optional <Like> checkLike = likeRepository.findLike(userId, postId);
+        if(checkLike.isPresent()){
+              throw new BadRequestException("Exist!");
+        }
+        else {
+            like.setUserId(userId);
+            like.setPostId(postId);
+        }
         return likeRepository.save(like);
+
     }
 
     public void deleteLike(String postId, String userId){
 
         String idLike = "";
-        Optional<Like> like = likeRepository.findLike(userId, postId);
+        Optional <Like> like = likeRepository.findLike(userId, postId);
+
         if (like.isPresent()){
             idLike = like.get().getId();
             likeRepository.deleteById(idLike);
