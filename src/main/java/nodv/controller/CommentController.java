@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -49,5 +50,23 @@ public class CommentController {
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Comment comment1 = commentService.updateUnlike(id,userId);
         return new ResponseEntity<>(comment1,HttpStatus.OK);
+    }
+    //get comment
+    @GetMapping("{id}")
+    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception{
+        List<Comment> comments = commentService.findByPostId(id);
+        return new ResponseEntity<>(comments,HttpStatus.OK);
+    }
+    //delete comment
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable String id) throws Exception{
+       commentService.deleteComment(id);
+       return new ResponseEntity<>(id,HttpStatus.OK);
+    }
+    @DeleteMapping("/all/{id}")
+    public ResponseEntity<?> deleteAllComment(@PathVariable("id") String postId) throws Exception{
+        System.out.println("test"+postId);
+        commentService.deleteAllComment(postId);
+        return new ResponseEntity<>(postId,HttpStatus.OK);
     }
 }

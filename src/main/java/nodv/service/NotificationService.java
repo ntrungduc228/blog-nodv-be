@@ -27,7 +27,6 @@ public class NotificationService {
         }
 
         if(notification.size()==0) {
-            System.out.println("hihihihi");
             throw new Exception("Notification not found");
         }
         return notification;
