@@ -35,14 +35,12 @@ public class UserService {
     }
 
     public User updateBasicProfile(User user, String id) {
-        Optional<User> updateUser = userRepository.findById(id);
-        if (updateUser.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        updateUser.get().setAvatar(user.getAvatar());
-        updateUser.get().setUsername(user.getUsername());
-        updateUser.get().setBio(user.getBio());
-        return userRepository.save(updateUser.get());
+        User userUpdate = findById(id);
+        userUpdate.setAvatar(user.getAvatar());
+        userUpdate.setUsername(user.getUsername());
+        userUpdate.setBio(user.getBio());
+        userUpdate.setGender(user.getGender());
+        return userRepository.save(userUpdate);
     }
 
     public Page<User> search(String name, int page, int limit) {

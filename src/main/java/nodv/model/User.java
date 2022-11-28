@@ -37,4 +37,5 @@ public class User {
     private Bookmark bookmark;
 
     private String bio;
+
 }
