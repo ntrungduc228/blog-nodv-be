@@ -20,7 +20,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
     @Query(value = "{'user.id': ?0}")
     List<Post> findByUserId(String userId);
 
-    @Query(value = "{'user.id': ?0, 'isPublish': ?1}")
     List<Post> findByUserIdAndIsPublish(String userId, Boolean isPublish);
 }
 

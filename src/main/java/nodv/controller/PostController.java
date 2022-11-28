@@ -81,15 +81,15 @@ public class PostController {
     @PatchMapping("/{id}/publish")
     public ResponseEntity<?> publishPost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        postService.changePublish(id, userId, true);
-        return new ResponseEntity<>(id, HttpStatus.OK);
+        Post post = postService.changePublish(id, userId, true);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/unpublished")
     public ResponseEntity<?> unPublishPost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        postService.changePublish(id, userId, false);
-        return new ResponseEntity<>(id, HttpStatus.OK);
+        Post post = postService.changePublish(id, userId, false);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/like")

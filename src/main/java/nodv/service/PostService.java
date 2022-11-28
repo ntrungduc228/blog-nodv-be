@@ -67,12 +67,12 @@ public class PostService {
         }
     }
 
-    public void changePublish(String id, String userId, boolean isPublic) {
+    public Post changePublish(String id, String userId, boolean isPublic) {
         Post post = findById(id);
         if (!post.getUser().getId().equals(userId))
             throw new ForbiddenException("You do not have permission to update this post");
         post.setIsPublish(isPublic);
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 
     public Page<Post> findAll(int page, int limit) {
@@ -82,8 +82,6 @@ public class PostService {
 
 
     public List<Post> findOwnedPost(String userId, String isPublish) {
-
-
         if (isPublish == null) return postRepository.findByUserId(userId);
         else return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
     }
