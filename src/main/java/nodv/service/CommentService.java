@@ -1,6 +1,8 @@
 package nodv.service;
 
+import nodv.exception.NotFoundException;
 import nodv.model.Comment;
+import nodv.model.Notification;
 import nodv.model.Post;
 import nodv.model.User;
 import nodv.repository.CommentRepository;
@@ -49,10 +51,10 @@ public class CommentService {
              throw new Exception("comment not found");
          }
          List<String> temp = updatelikecomment.get().getUserlikeids();
-//             if(!temp.contains(userId)) {
-//               
-//             }
-        temp.add(userId);
+             if(!temp.contains(userId)) {
+                 temp.add(userId);
+             }
+
          updatelikecomment.get().setUserlikeids(temp);
 
          return commentRepository.save(updatelikecomment.get());
@@ -68,6 +70,40 @@ public class CommentService {
         updateunlike.get().setUserlikeids(temp);
 
         return commentRepository.save(updateunlike.get());
+    }
+    //get comment
+    public List<Comment> findByPostId(String postId) throws Exception {
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        if(comments.size()==0) {
+            throw new Exception("Notification not found");
+        }
+        return comments;
+    }
+//Delete comment
+    public void deleteComment(String id) {
+         Optional<Comment> comment = commentRepository.findById(id);
+
+         if(comment.isPresent()) {
+            commentRepository.deleteById(id);
+            List<Comment> commentchilren = commentRepository.findByReplyId(id);
+            if(commentchilren.size()!=0){
+                commentRepository.deleteByReplyId(id);
+            }
+         } else {
+             throw new NotFoundException("Comment not found");
+         }
+
+    }
+//delete all comment of post
+    public void deleteAllComment(String postId) {
+        System.out.println("ihihi");
+         List<Comment> comments = commentRepository.findByPostId(postId);
+         if(comments.size()!=0) {
+             System.out.println("ihihi");
+             commentRepository.deleteByPostId(postId);
+         }else {
+             throw new NotFoundException("comment not found");
+         }
     }
 
 }
