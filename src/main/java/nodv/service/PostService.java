@@ -45,26 +45,30 @@ public class PostService {
         User user = userService.findById(userId);
         post.setUserId(user.getId());
         post.setUser(user);
+        post.setIsPublish(true);
         return postRepository.save(post);
     }
 
-    public Post updatePost(String id, Post post) throws Exception {
+    public Post updatePost(String id, Post post, String userId) {
         Post updatePost = findById(id);
-        updatePost.setTitle(post.getTitle());
-        updatePost.setContent(post.getContent());
-        updatePost.setThumbnail(post.getThumbnail());
-        return postRepository.save(updatePost);
+        if (updatePost.getUser().getId().equals(userId)) {
+            updatePost.setTitle(post.getTitle());
+            updatePost.setContent(post.getContent());
+            updatePost.setThumbnail(post.getThumbnail());
+            updatePost.setTimeRead(post.getTimeRead());
+            updatePost.setTopic(post.getTopic());
+            updatePost.setSubtitle(post.getSubtitle());
+            return postRepository.save(updatePost);
+        } else throw new ForbiddenException("You do not have permission to delete this post");
+
     }
 
     public void deletePost(String id, String userId) {
-        Optional<Post> post = postRepository.findById(id);
-        if (post.isPresent()) {
-            if (post.get().getUser().getId().equals(userId))
-                postRepository.deleteById(id);
-            else throw new ForbiddenException("You do not have permission to delete this post");
-        } else {
-            throw new NotFoundException("Post not found");
-        }
+        Post post = findById(id);
+        if (post.getUser().getId().equals(userId))
+            postRepository.deleteById(id);
+        else throw new ForbiddenException("You do not have permission to delete this post");
+
     }
 
     public Post changePublish(String id, String userId, boolean isPublic) {
