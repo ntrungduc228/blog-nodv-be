@@ -34,7 +34,9 @@ public class BookmarkService {
         Bookmark bookmark = new Bookmark();
         bookmark.setUserId(bookmarkDTO.getUserId());
         List<String> listPostIds = new ArrayList<>();
-        listPostIds.add(bookmarkDTO.getPostId());
+        if(!bookmarkDTO.getPostId().isEmpty()) {
+            listPostIds.add(bookmarkDTO.getPostId());
+        }
         bookmark.setPostIds(listPostIds);
         return bookmarkRepository.save(bookmark);
     }
@@ -42,14 +44,17 @@ public class BookmarkService {
     public Bookmark addPostIdToBookmark(String userId, String postId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
         if(!bookmark.isPresent()){
-//            BookmarkDTO bookmarkDTO = new BookmarkDTO(userId, postId);
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, postId)));
         }
 
-        for(String findPostId: bookmark.get().getPostIds()){
-            if(findPostId.equals(postId)){
-                throw new Exception("PostId is exits");
-            }
+//        for(String findPostId: bookmark.get().getPostIds()){
+//            if(findPostId.equals(postId)){
+//                throw new Exception("PostId is exits");
+//            }
+//        }
+
+        if(bookmark.get().getPostIds().contains(postId)){
+            throw new Exception("PostId is exits");
         }
 
         Query query = new Query();
@@ -84,7 +89,9 @@ public class BookmarkService {
     public Bookmark findByUserId(String userId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
         if(!bookmark.isPresent()){
-            throw new Exception("Bookmark by userid not found");
+//            throw new Exception("Bookmark by userid not found");
+            bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, "")));
+            return bookmark.get();
         }
 
         if(bookmark.get().getPostIds().size() > 0 ){
