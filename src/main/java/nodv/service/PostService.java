@@ -3,6 +3,7 @@ package nodv.service;
 import nodv.exception.ForbiddenException;
 import nodv.exception.NotFoundException;
 import nodv.model.Post;
+import nodv.model.Topic;
 import nodv.model.User;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +32,8 @@ public class PostService {
     TokenProvider tokenProvider;
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    TopicService topicService;
 
     // mongodb-method
     public Post findById(String id) {
@@ -45,26 +49,36 @@ public class PostService {
         User user = userService.findById(userId);
         post.setUserId(user.getId());
         post.setUser(user);
+        post.setIsPublish(true);
+        List<Topic> topics = new ArrayList<>();
+        Topic topic1 = new Topic("React js");
+        Topic topic2 = new Topic("Test topic");
+        topics.add(topic1);
+        topics.add(topic2);
+        post.setTopics(topicService.checkAndCreateListTopic(topics));
         return postRepository.save(post);
     }
 
-    public Post updatePost(String id, Post post) throws Exception {
+    public Post updatePost(String id, Post post, String userId) {
         Post updatePost = findById(id);
-        updatePost.setTitle(post.getTitle());
-        updatePost.setContent(post.getContent());
-        updatePost.setThumbnail(post.getThumbnail());
-        return postRepository.save(updatePost);
+        if (updatePost.getUser().getId().equals(userId)) {
+            updatePost.setTitle(post.getTitle());
+            updatePost.setContent(post.getContent());
+            updatePost.setThumbnail(post.getThumbnail());
+            updatePost.setTimeRead(post.getTimeRead());
+            updatePost.setTopic(post.getTopic());
+            updatePost.setSubtitle(post.getSubtitle());
+            return postRepository.save(updatePost);
+        } else throw new ForbiddenException("You do not have permission to delete this post");
+
     }
 
     public void deletePost(String id, String userId) {
-        Optional<Post> post = postRepository.findById(id);
-        if (post.isPresent()) {
-            if (post.get().getUser().getId().equals(userId))
-                postRepository.deleteById(id);
-            else throw new ForbiddenException("You do not have permission to delete this post");
-        } else {
-            throw new NotFoundException("Post not found");
-        }
+        Post post = findById(id);
+        if (post.getUser().getId().equals(userId))
+            postRepository.deleteById(id);
+        else throw new ForbiddenException("You do not have permission to delete this post");
+
     }
 
     public Post changePublish(String id, String userId, boolean isPublic) {

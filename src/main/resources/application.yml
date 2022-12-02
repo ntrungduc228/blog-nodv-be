@@ -24,6 +24,7 @@ spring:
       database: blog-nodv
       port: '27017'
       uri: mongodb+srv://nodv:nodv@blog-nodv.vbgx2gc.mongodb.net/?retryWrites=true&w=majority
+       
   security:
     oauth2:
       client:
