@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -33,6 +35,14 @@ public class BookmarkController {
         return new ResponseEntity<>(bookmark, HttpStatus.OK);
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<?> getListPostIds(HttpServletRequest request){
+        String token = tokenProvider.getJwtFromRequest(request);
+        String userId = tokenProvider.getUserIdFromToken(token);
+        List<String> postIds = bookmarkService.getListPostIds(userId);
+        return new ResponseEntity<>(postIds, HttpStatus.OK);
+    }
+
     @GetMapping("/user")
     public ResponseEntity<?> findByUserId(HttpServletRequest request) throws Exception {
         String token = tokenProvider.getJwtFromRequest(request);
@@ -42,21 +52,15 @@ public class BookmarkController {
         return new ResponseEntity<>(bookmark, HttpStatus.OK);
     }
 
-    @PatchMapping("/add")
-    public ResponseEntity<?> addPostIdToBookmark(@RequestBody String postId, HttpServletRequest request)  throws Exception {
+    @PatchMapping("/{postId}")
+    public ResponseEntity<?> updatePostIdToBookmark(@PathVariable String postId, HttpServletRequest request)  throws Exception {
+        System.out.println(postId);
         String token = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(token);
-        Bookmark bookmark = bookmarkService.addPostIdToBookmark(userId, postId);
+        List<String> postIds = bookmarkService.updatePostIdToBookmark(userId, postId);
 
-        return new ResponseEntity<>(bookmark, HttpStatus.OK);
+        return new ResponseEntity<>(postIds, HttpStatus.OK);
     }
 
-    @PatchMapping("/delete")
-    public ResponseEntity<?> deletePostIdToBookmark(@RequestBody String postId, HttpServletRequest request) throws Exception {
-        String token = tokenProvider.getJwtFromRequest(request);
-        String userId = tokenProvider.getUserIdFromToken(token);
-        Bookmark bookmark = bookmarkService.deletePostIdToBookmark(userId, postId);
 
-        return new ResponseEntity<>(bookmark, HttpStatus.OK);
-    }
 }
