@@ -22,9 +22,6 @@ public class BookmarkService {
     BookmarkRepository bookmarkRepository;
 
     @Autowired
-    PostService postService;
-
-    @Autowired
     PostRepository postRepository;
 
     @Autowired
@@ -41,72 +38,59 @@ public class BookmarkService {
         return bookmarkRepository.save(bookmark);
     }
 
-    public Bookmark addPostIdToBookmark(String userId, String postId) throws Exception {
+    public List<String> getListPostIds(String userId) {
+        Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
+        if(!bookmark.isPresent()){
+            bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, "")));
+        }
+
+        return bookmark.get().getPostIds();
+    }
+
+    public List<String> updatePostIdToBookmark(String userId, String postId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
         if(!bookmark.isPresent()){
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, postId)));
         }
 
-//        for(String findPostId: bookmark.get().getPostIds()){
-//            if(findPostId.equals(postId)){
-//                throw new Exception("PostId is exits");
-//            }
-//        }
-
-        if(bookmark.get().getPostIds().contains(postId)){
-            throw new Exception("PostId is exits");
-        }
+        Boolean postIdIsExists = false;
+        if(bookmark.get().getPostIds().contains(postId)){ postIdIsExists = true;}
 
         Query query = new Query();
         Criteria criteria = Criteria.where("userId").is(bookmark.get().getUserId());
         query.addCriteria(criteria);
         Update update = new Update();
-        update.push("postIds", postId);
-        mongoTemplate.updateFirst(query, update, Bookmark.class);
-
-        bookmark = bookmarkRepository.findByUserId(userId);
-
-        return bookmark.get();
-    }
-
-    public Bookmark deletePostIdToBookmark(String userId, String postId) throws Exception {
-        Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
-        if(!bookmark.isPresent()){
-           throw new Exception("Bookmark not found");
+        if(postIdIsExists) {
+            update.pull("postIds", postId);
+        }else {
+            update.push("postIds", postId);
         }
-
-        Query query = new Query();
-        Criteria criteria = Criteria.where("userId").is(bookmark.get().getUserId());
-        query.addCriteria(criteria);
-        Update update = new Update();
-        update.pull("postIds", postId);
         mongoTemplate.updateFirst(query, update, Bookmark.class);
 
         bookmark = bookmarkRepository.findByUserId(userId);
-        return bookmark.get();
+
+        return bookmark.get().getPostIds();
     }
 
     public Bookmark findByUserId(String userId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
         if(!bookmark.isPresent()){
-//            throw new Exception("Bookmark by userid not found");
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, "")));
+            bookmark.get().setPosts(new ArrayList<Post>());
             return bookmark.get();
         }
 
-        if(bookmark.get().getPostIds().size() > 0 ){
+        if(bookmark.get().getPostIds().size() > 0 ) {
             List<Post> posts = new ArrayList<>();
-            for(String postId : bookmark.get().getPostIds()){
+            for (String postId : bookmark.get().getPostIds()) {
                 Optional<Post> post = postRepository.findById(postId);
-               if(post.isPresent()) {posts.add(post.get());}
+                if (post.isPresent()) {
+                    posts.add(post.get());
+                }
             }
             bookmark.get().setPosts(posts);
-//            for(Post post: posts){
-//                System.out.println("post ok " + post.getTitle());
-//            }
+
         }
-
-
 
         return bookmark.get();
     }

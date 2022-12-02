@@ -14,7 +14,6 @@ import java.util.List;
 public interface PostRepository extends MongoRepository<Post, String> {
     Optional<Post> findByIdAndUserId(String id, String userId);
 
-
     void deleteByIdAndUserId(String id, String userId);
 
     Page<Post> findByIsPublishIsTrue(Pageable pageable);
