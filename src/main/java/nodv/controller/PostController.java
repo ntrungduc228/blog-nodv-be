@@ -1,12 +1,15 @@
 package nodv.controller;
 
+import nodv.model.Comment;
 import nodv.model.Post;
 import nodv.security.TokenProvider;
 import nodv.service.PostService;
+import nodv.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,12 +17,16 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-@RequestMapping("/api/posts") //localhost://8081/api/posts    - method:....
+@RequestMapping("/api/posts")
 public class PostController {
     @Autowired
     PostService postService;
     @Autowired
+    CommentService commentService;
+    @Autowired
     TokenProvider tokenProvider;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     // get posts
     @GetMapping("")
@@ -66,8 +73,11 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(@RequestBody Post post, @PathVariable String id) throws Exception {
-        Post newPost = postService.updatePost(id, post);
+    public ResponseEntity<?> updatePost(@RequestBody Post post,
+                                        @PathVariable String id,
+                                        HttpServletRequest request) throws Exception {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Post newPost = postService.updatePost(id, post, userId);
         return new ResponseEntity<>(newPost, HttpStatus.OK);
     }
 
@@ -75,6 +85,7 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         postService.deletePost(id, userId);
+        commentService.deleteAllComment(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
@@ -96,6 +107,7 @@ public class PostController {
     public ResponseEntity<?> likePost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         Post post = postService.likePost(id, userId);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + post.getId() + "/like", post);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
@@ -103,7 +115,13 @@ public class PostController {
     public ResponseEntity<?> unlikePost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         Post post = postService.unlikePost(id, userId);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + post.getId() + "/like", post);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
-
+    //get comment
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception{
+        List<Comment> comments = commentService.findByPostId(id);
+        return new ResponseEntity<>(comments,HttpStatus.OK);
+    }
 }

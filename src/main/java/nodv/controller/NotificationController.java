@@ -25,7 +25,7 @@ public class NotificationController {
     @GetMapping("")
     public ResponseEntity<?> getNotifications(
             HttpServletRequest request,
-            @RequestParam(name="isRead",required = false) boolean isRead) throws Exception {
+            @RequestParam(value="isRead",required = false) String isRead) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         List<Notification> notifications = notificationService.findByReceiverId(userId,isRead);
@@ -40,7 +40,7 @@ public class NotificationController {
         return new ResponseEntity<>(notification,HttpStatus.OK);
     }
     //update
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> updateNotification(@PathVariable String id) throws Exception {
         Notification updateNotification = notificationService.updateNotification(id);
         return new ResponseEntity<>(updateNotification,HttpStatus.OK);
