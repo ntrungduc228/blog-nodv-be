@@ -1,8 +1,10 @@
 package nodv.controller;
 
+import nodv.model.Comment;
 import nodv.model.Post;
 import nodv.security.TokenProvider;
 import nodv.service.PostService;
+import nodv.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import java.util.List;
 public class PostController {
     @Autowired
     PostService postService;
+    @Autowired
+    CommentService commentService;
     @Autowired
     TokenProvider tokenProvider;
 
@@ -75,6 +79,7 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         postService.deletePost(id, userId);
+        commentService.deleteAllComment(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
@@ -104,6 +109,12 @@ public class PostController {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         Post post = postService.unlikePost(id, userId);
         return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+    //get comment
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception{
+        List<Comment> comments = commentService.findByPostId(id);
+        return new ResponseEntity<>(comments,HttpStatus.OK);
     }
 
 }
