@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.io.Console;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,30 @@ public class UserService {
     }
 
     //Follow
+    public List<User> getAllUser(){
+       return userRepository.findAll();
+    }
+    public List<User> getAllUserT(String userId, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, limit);
+//        User userID = findById(userId); //User admin
+//
+//        List<String> followingId = userID.getFollowingId();
+
+//        if(followingId != null) {
+//            int index = 0;
+//            for (String followId : followingId) { //Dang chay=> User Id Following cua admin dang chay list string
+//                User userFL = findById(followId);
+//                for (User id : lstUser) {
+//                    if (id.getId().equals(followId)) {
+//                        index = lstUser.indexOf(id);
+//                        lstUser.remove(index);
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+        return userRepository.findByFollowerIdNotContaining(userId, pageable);
+    }
     public User followUser(String userId, String followId){
         Optional<User> user = userRepository.findById(followId);
         if (user.isEmpty())
@@ -66,7 +91,7 @@ public class UserService {
 
         User checkDuplicate = findById(userId);
         List<String> arrCheck = checkDuplicate.getFollowingId();
-        if(arrCheck.contains(followId)){
+        if(arrCheck != null && arrCheck.contains(followId)){
             throw new NotFoundException("Followed");
         }
 
@@ -86,13 +111,13 @@ public class UserService {
         update2.push("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(followId);
+        return findById(userId);
     }
 
     public User unfollowUser(String userId, String unfollowId){
         Optional<User> user = userRepository.findById(unfollowId);
-        if (user.isEmpty())
-            throw new NotFoundException("User not found");
+      if (user.isEmpty())
+           throw new NotFoundException("User not found");
         Query query = new Query();
         Criteria criteria = Criteria.where("id").is(userId);
         query.addCriteria(criteria);
@@ -111,6 +136,6 @@ public class UserService {
         update2.pull("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(unfollowId);
+        return findById(userId);
     }
 }
