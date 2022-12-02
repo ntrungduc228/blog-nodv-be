@@ -96,8 +96,13 @@ public class PostService {
 
 
     public List<Post> findOwnedPost(String userId, String isPublish) {
-        if (isPublish == null) return postRepository.findByUserId(userId);
-        else return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
+        if (isPublish == null) {
+
+            List<Post> post = postRepository.findByUserId(userId);
+            return postRepository.findByUserId(userId);}
+        else {
+            return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
+        }
     }
 
 
