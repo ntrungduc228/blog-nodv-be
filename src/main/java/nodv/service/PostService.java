@@ -3,6 +3,7 @@ package nodv.service;
 import nodv.exception.ForbiddenException;
 import nodv.exception.NotFoundException;
 import nodv.model.Post;
+import nodv.model.Topic;
 import nodv.model.User;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +32,8 @@ public class PostService {
     TokenProvider tokenProvider;
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    TopicService topicService;
 
     // mongodb-method
     public Post findById(String id) {
@@ -46,6 +50,12 @@ public class PostService {
         post.setUserId(user.getId());
         post.setUser(user);
         post.setIsPublish(true);
+        List<Topic> topics = new ArrayList<>();
+        Topic topic1 = new Topic("React js");
+        Topic topic2 = new Topic("Test topic");
+        topics.add(topic1);
+        topics.add(topic2);
+        post.setTopics(topicService.checkAndCreateListTopic(topics));
         return postRepository.save(post);
     }
 

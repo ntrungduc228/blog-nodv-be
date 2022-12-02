@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-@RequestMapping("/api/posts") //localhost://8081/api/posts    - method:....
+@RequestMapping("/api/posts")
 public class PostController {
     @Autowired
     PostService postService;
