@@ -34,9 +34,8 @@ public class User {
     private AuthProvider provider;
     private String providerId;
 
-    private String bookmarkId;
-
-    private Bookmark bookmark;
+//    private String bookmarkId;
+//    private Bookmark bookmark;
 
     private String bio;
     //tao 2 mang liststring: followingId, FollowerId

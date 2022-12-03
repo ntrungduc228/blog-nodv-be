@@ -9,9 +9,10 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.List;
+
 public interface PostRepository extends MongoRepository<Post, String> {
     Optional<Post> findByIdAndUserId(String id, String userId);
-
 
     void deleteByIdAndUserId(String id, String userId);
 
@@ -20,8 +21,8 @@ public interface PostRepository extends MongoRepository<Post, String> {
     @Query(value = "{'user.id': ?0}")
     List<Post> findByUserId(String userId);
 
-    @Query(value = "{'user.id': ?0, 'isPublish': ?1}")
     List<Post> findByUserIdAndIsPublish(String userId, Boolean isPublish);
+
 }
 
 //db -> repository -> service -> controller
