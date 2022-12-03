@@ -63,6 +63,14 @@ public class UserController {
 
         return new ResponseEntity<>(FollowingId,HttpStatus.OK );
     }
+//
+//    @GetMapping("/getAllUnFollow")
+//    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request){
+//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+//        List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
+//
+//        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
+//    }
     @PatchMapping("/follow/{followId}")
     public ResponseEntity<?> followUser(@PathVariable String followId, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));

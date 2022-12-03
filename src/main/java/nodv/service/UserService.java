@@ -65,7 +65,9 @@ public class UserService {
     }
     public List<User> getAllUserT(String userId, int page, int limit) {
         Pageable pageable = PageRequest.of(page, limit);
-//        User userID = findById(userId); //User admin
+        //List <User> listUserNotContains = userRepository.findByFollowerIdNotContaining(userId, pageable);
+
+  //      User userID = findById(userId); //User admin
 //
 //        List<String> followingId = userID.getFollowingId();
 
@@ -82,7 +84,7 @@ public class UserService {
 //                }
 //            }
 //        }
-        return userRepository.findByFollowerIdNotContaining(userId, pageable);
+        return userRepository.findByIdNotAndFollowerIdNotContaining(userId, userId, pageable);
     }
     public User followUser(String userId, String followId){
         Optional<User> user = userRepository.findById(followId);
@@ -111,7 +113,7 @@ public class UserService {
         update2.push("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(userId);
+        return findById(followId);
     }
 
     public User unfollowUser(String userId, String unfollowId){
@@ -136,6 +138,6 @@ public class UserService {
         update2.pull("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(userId);
+        return findById(unfollowId);
     }
 }

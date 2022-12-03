@@ -15,6 +15,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     @Query(sort = "{ username : 1 }", fields = "{role : 0}")
     Page<User> findByUsernameLikeIgnoreCase(String name, Pageable pageable);
 
-
-    List <User> findByFollowerIdNotContaining (String userId, Pageable pageable);
+    List <User> findByIdNotAndFollowerIdNotContaining(String userId, String Id,Pageable pageable);
 }
