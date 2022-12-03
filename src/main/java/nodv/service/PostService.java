@@ -50,12 +50,7 @@ public class PostService {
         post.setUserId(user.getId());
         post.setUser(user);
         post.setIsPublish(true);
-        List<Topic> topics = new ArrayList<>();
-        Topic topic1 = new Topic("React js");
-        Topic topic2 = new Topic("Test topic");
-        topics.add(topic1);
-        topics.add(topic2);
-        post.setTopics(topicService.checkAndCreateListTopic(topics));
+        post.setTopics(topicService.checkAndCreateListTopic(post.getTopics()));
         return postRepository.save(post);
     }
 
@@ -66,7 +61,7 @@ public class PostService {
             updatePost.setContent(post.getContent());
             updatePost.setThumbnail(post.getThumbnail());
             updatePost.setTimeRead(post.getTimeRead());
-            updatePost.setTopic(post.getTopic());
+            updatePost.setTopics(topicService.checkAndCreateListTopic(post.getTopics()));
             updatePost.setSubtitle(post.getSubtitle());
             return postRepository.save(updatePost);
         } else throw new ForbiddenException("You do not have permission to delete this post");

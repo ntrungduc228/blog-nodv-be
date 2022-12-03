@@ -19,15 +19,19 @@ public class TopicService {
 
 
     public List<Topic> checkAndCreateListTopic(List<Topic> topics) {
+        System.out.println(topics);
         List<Topic> topicsResult = new ArrayList<>();
         Optional<Topic> optionalTopic = Optional.empty();
         for (Topic topic : topics) {
             if (topic.getId() == null) {
-                optionalTopic = topicRepository.findBySlug(topic.getSlug());
+                Topic newTopic = new Topic(topic.getName());
+                boolean isExist = topicsResult.stream().anyMatch(t -> t.getSlug().equals(newTopic.getSlug()));
+                if (isExist) break;
+                optionalTopic = topicRepository.findBySlug(newTopic.getSlug());
                 if (optionalTopic.isPresent()) {
-                    topicsResult.add(optionalTopic.get());
-                } else topicsResult.add(topicRepository.save(topic));
-            }
+                    topicsResult.add(optionalTopic.get()); // if present add
+                } else topicsResult.add(topicRepository.save(newTopic)); // else create new and add
+            } else topicsResult.add(topic);
         }
         return topicsResult;
     }
