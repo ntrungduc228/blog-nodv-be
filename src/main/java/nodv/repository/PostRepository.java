@@ -12,7 +12,6 @@ import java.util.Optional;
 public interface PostRepository extends MongoRepository<Post, String> {
     Optional<Post> findByIdAndUserId(String id, String userId);
 
-
     void deleteByIdAndUserId(String id, String userId);
 
     Page<Post> findByIsPublishIsTrue(Pageable pageable);
@@ -20,8 +19,10 @@ public interface PostRepository extends MongoRepository<Post, String> {
     @Query(value = "{'user.id': ?0}")
     List<Post> findByUserId(String userId);
 
-    @Query(value = "{'user.id': ?0, 'isPublish': ?1}")
     List<Post> findByUserIdAndIsPublish(String userId, Boolean isPublish);
+
+    @Query(fields = "{'topics.slug': ?0}")
+    Page<Post> findByTopicsSlug(String topic, Pageable pageable);
 }
 
 //db -> repository -> service -> controller

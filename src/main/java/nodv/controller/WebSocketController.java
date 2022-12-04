@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import nodv.model.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,5 +22,4 @@ public class WebSocketController {
     public String receiveMessage(@Payload String string) {
         return string;
     }
-
 }

@@ -6,7 +6,6 @@ import nodv.model.Notification;
 import nodv.model.Post;
 import nodv.model.User;
 import nodv.repository.CommentRepository;
-import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

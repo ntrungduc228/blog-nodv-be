@@ -14,8 +14,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,10 +57,7 @@ public class UserService {
         return userRepository.findByUsernameLikeIgnoreCase(name, pageable);
     }
 
-    //Follow
-    public List<User> getAllUser(){
-       return userRepository.findAll();
-    }
+
     public List<User> getAllUserT(String userId, int page, int limit) {
         Pageable pageable = PageRequest.of(page, limit);
         //List <User> listUserNotContains = userRepository.findByFollowerIdNotContaining(userId, pageable);
@@ -139,5 +134,10 @@ public class UserService {
         mongoTemplate.updateFirst(query2, update2, User.class);
 
         return findById(unfollowId);
+    }
+    public User setTopics(User user, String userId) {
+        User userUpdate = findById(userId);
+        userUpdate.setTopics(user.getTopics());
+        userRepository.save(userUpdate);
     }
 }

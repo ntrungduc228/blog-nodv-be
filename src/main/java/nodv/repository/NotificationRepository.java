@@ -10,4 +10,6 @@ public interface NotificationRepository extends MongoRepository<Notification, St
     List<Notification> findByReceiverId(String receiverId);
     List<Notification> findByReceiverIdAndIsReadIsTrue(String receiverId);
     List<Notification> findByReceiverIdAndIsReadIsFalse(String receiverId);
+
+    List<Notification> findByReceiverIdAndIsRead(String receiverId, Boolean isRead);
 }
