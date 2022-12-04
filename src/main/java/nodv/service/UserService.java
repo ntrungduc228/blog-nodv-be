@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,5 +48,12 @@ public class UserService {
 
         Pageable pageable = PageRequest.of(page, limit);
         return userRepository.findByUsernameLikeIgnoreCase(name, pageable);
+    }
+
+    public User setTopics(User user, String userId) {
+        User userUpdate = findById(userId);
+        userUpdate.setTopics(user.getTopics());
+        userRepository.save(userUpdate);
+        return userUpdate;
     }
 }

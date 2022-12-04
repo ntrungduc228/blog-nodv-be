@@ -32,9 +32,10 @@ public class PostController {
     @GetMapping("")
     public ResponseEntity<?> getPosts(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            @RequestParam(value = "topic", required = false) String topic
     ) {
-        Page<Post> posts = postService.findAll(page, limit);
+        Page<Post> posts = postService.findAll(page, limit, topic);
         return new ResponseEntity<>(posts.get(), HttpStatus.OK);
     }
 
@@ -118,10 +119,11 @@ public class PostController {
         simpMessagingTemplate.convertAndSend("/topic/posts/" + post.getId() + "/like", post);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
+
     //get comment
     @GetMapping("/{id}/comments")
-    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception{
+    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception {
         List<Comment> comments = commentService.findByPostId(id);
-        return new ResponseEntity<>(comments,HttpStatus.OK);
+        return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 }

@@ -16,8 +16,14 @@ public class TopicController {
     @Autowired
     TopicService topicService;
 
+    @GetMapping("")
+    ResponseEntity<?> getTopics() {
+        List<Topic> topics = topicService.findAll();
+        return new ResponseEntity<>(topics, HttpStatus.OK);
+    }
+
     @GetMapping("/search")
-    ResponseEntity<?> getTopics(@RequestParam(value = "q", required = true) String name) {
+    ResponseEntity<?> searchTopics(@RequestParam(value = "q", required = true) String name) {
         List<Topic> topics = topicService.searchByName(name);
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }

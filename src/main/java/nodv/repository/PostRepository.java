@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-import java.util.List;
-
 public interface PostRepository extends MongoRepository<Post, String> {
     Optional<Post> findByIdAndUserId(String id, String userId);
 
@@ -23,6 +21,8 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     List<Post> findByUserIdAndIsPublish(String userId, Boolean isPublish);
 
+    @Query(fields = "{'topics.slug': ?0}")
+    Page<Post> findByTopicsSlug(String topic, Pageable pageable);
 }
 
 //db -> repository -> service -> controller
