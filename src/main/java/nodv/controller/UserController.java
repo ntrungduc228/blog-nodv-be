@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import nodv.model.Post;
 import nodv.model.Topic;
 import nodv.model.User;
 import nodv.security.TokenProvider;
@@ -52,6 +53,35 @@ public class UserController {
         return new ResponseEntity<>(users.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/getAllUnFollow")
+    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request,  @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                                             @RequestParam(value = "limit", defaultValue = "3", required = false) int limit){
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+      List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
+
+        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
+    }
+//
+//    @GetMapping("/getAllUnFollow")
+//    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request){
+//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+//        List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
+//
+//        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
+//    }
+    @PatchMapping("/follow/{followId}")
+    public ResponseEntity<?> followUser(@PathVariable String followId, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User user = userService.followUser(userId, followId);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PatchMapping("/unfollow/{unfollowId}")
+    public ResponseEntity<?> unFollowUser(@PathVariable String unfollowId, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User user = userService.unfollowUser(userId, unfollowId);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
     @GetMapping("/topics")
     public ResponseEntity<?> getOwnTopics(HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
