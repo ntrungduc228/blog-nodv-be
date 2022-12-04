@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -84,20 +85,37 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Page<Post> findAll(int page, int limit) {
+    public Page<Post> findAll(int page, int limit, String topicSlug) {
         Pageable pageable = PageRequest.of(page, limit);
-        return postRepository.findByIsPublishIsTrue(pageable);
+        Query query = new Query().with(pageable);
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(Criteria.where("isPublish").is(true));
+
+
+        if (topicSlug != null && !topicSlug.equals("all") && !topicSlug.isBlank()) {
+            Topic topic = topicService.findBySlug(topicSlug);
+            criteria.add(Criteria.where("topics.id").is(topic.getId()));
+        }
+
+        query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
+
+
+        return PageableExecutionUtils.getPage(
+                mongoTemplate.find(query, Post.class), pageable,
+                () -> mongoTemplate.count(query.skip(0).limit(0), Post.class));
+
     }
 
 
     public List<Post> findOwnedPost(String userId, String isPublish) {
         if (isPublish == null) {
 
-            List<Post> post = postRepository.findByUserId(userId);
-            return postRepository.findByUserId(userId);}
-        else {
+            return postRepository.findByUserId(userId);
+
+        } else {
             return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
         }
+
     }
 
 

@@ -12,4 +12,6 @@ public interface TopicRepository extends MongoRepository<Topic, String> {
     List<Topic> findByName(String name);
 
     List<Topic> findByNameLikeIgnoreCase(String name);
+
+    List<Topic> findByIdIn(List<String> topics);
 }

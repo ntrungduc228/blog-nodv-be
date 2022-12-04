@@ -2,8 +2,10 @@ package nodv.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import nodv.model.Post;
+import nodv.model.Topic;
 import nodv.model.User;
 import nodv.security.TokenProvider;
+import nodv.service.TopicService;
 import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
+    @Autowired
+    TopicService topicService;
 
     @Autowired
     TokenProvider tokenProvider;
@@ -47,12 +51,6 @@ public class UserController {
     ) {
         Page<User> users = userService.search(name, page, limit);
         return new ResponseEntity<>(users.get(), HttpStatus.OK);
-    }
-
-    @GetMapping("/getAllUser")
-    public ResponseEntity<?> getAllUser(){
-        List<User> getAllUser = userService.getAllUser();
-        return new ResponseEntity<>(getAllUser, HttpStatus.OK );
     }
 
     @GetMapping("/getAllUnFollow")
@@ -83,5 +81,18 @@ public class UserController {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         User user = userService.unfollowUser(userId, unfollowId);
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+    @GetMapping("/topics")
+    public ResponseEntity<?> getOwnTopics(HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List<Topic> topics = topicService.findUserTopics(userId);
+        return new ResponseEntity<>(topics, HttpStatus.OK);
+    }
+
+    @PatchMapping("/topics")
+    public ResponseEntity<?> setTopics(@RequestBody User user, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User userUpdate = userService.setTopics(user, userId);
+        return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
 }
