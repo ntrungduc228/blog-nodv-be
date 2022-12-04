@@ -62,7 +62,7 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, limit);
         //List <User> listUserNotContains = userRepository.findByFollowerIdNotContaining(userId, pageable);
 
-  //      User userID = findById(userId); //User admin
+        //      User userID = findById(userId); //User admin
 //
 //        List<String> followingId = userID.getFollowingId();
 
@@ -81,14 +81,15 @@ public class UserService {
 //        }
         return userRepository.findByIdNotAndFollowerIdNotContaining(userId, userId, pageable);
     }
-    public User followUser(String userId, String followId){
+
+    public User followUser(String userId, String followId) {
         Optional<User> user = userRepository.findById(followId);
         if (user.isEmpty())
             throw new NotFoundException("User not found");
 
         User checkDuplicate = findById(userId);
         List<String> arrCheck = checkDuplicate.getFollowingId();
-        if(arrCheck != null && arrCheck.contains(followId)){
+        if (arrCheck != null && arrCheck.contains(followId)) {
             throw new NotFoundException("Followed");
         }
 
@@ -111,10 +112,10 @@ public class UserService {
         return findById(followId);
     }
 
-    public User unfollowUser(String userId, String unfollowId){
+    public User unfollowUser(String userId, String unfollowId) {
         Optional<User> user = userRepository.findById(unfollowId);
-      if (user.isEmpty())
-           throw new NotFoundException("User not found");
+        if (user.isEmpty())
+            throw new NotFoundException("User not found");
         Query query = new Query();
         Criteria criteria = Criteria.where("id").is(userId);
         query.addCriteria(criteria);
@@ -135,9 +136,10 @@ public class UserService {
 
         return findById(unfollowId);
     }
+
     public User setTopics(User user, String userId) {
         User userUpdate = findById(userId);
         userUpdate.setTopics(user.getTopics());
-        userRepository.save(userUpdate);
+        return userRepository.save(userUpdate);
     }
 }
