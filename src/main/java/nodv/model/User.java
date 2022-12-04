@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,6 +33,7 @@ public class User {
     private Boolean isActive;
     private AuthProvider provider;
     private String providerId;
+    private List<String> topics;
 
 //    private String bookmarkId;
 //    private Bookmark bookmark;

@@ -1,6 +1,8 @@
 package nodv.service;
 
+import nodv.exception.NotFoundException;
 import nodv.model.Topic;
+import nodv.model.User;
 import nodv.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,6 +18,8 @@ public class TopicService {
     TopicRepository topicRepository;
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    UserService userService;
 
 
     public List<Topic> checkAndCreateListTopic(List<Topic> topics) {
@@ -38,5 +42,20 @@ public class TopicService {
 
     public List<Topic> searchByName(String name) {
         return topicRepository.findByNameLikeIgnoreCase(name);
+    }
+
+    public List<Topic> findAll() {
+        return topicRepository.findAll();
+    }
+
+    public List<Topic> findUserTopics(String userId) {
+        User user = userService.findById(userId);
+        return topicRepository.findByIdIn(user.getTopics());
+    }
+
+    public Topic findBySlug(String slug) {
+        Optional<Topic> topic = topicRepository.findBySlug(slug);
+        if (topic.isEmpty()) throw new NotFoundException("Topic not found");
+        return topic.get();
     }
 }
