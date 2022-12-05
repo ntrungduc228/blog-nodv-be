@@ -80,29 +80,17 @@ public class CommentService {
     }
 //Delete comment
     public void deleteComment(String id) {
-         Optional<Comment> comment = commentRepository.findById(id);
+        Optional<Comment> comment = commentRepository.findById(id);
 
-         if(comment.isPresent()) {
+        if (comment.isPresent()) {
             commentRepository.deleteById(id);
             List<Comment> commentchilren = commentRepository.findByReplyId(id);
-            if(commentchilren.size()!=0){
+            if (commentchilren.size() != 0) {
                 commentRepository.deleteByReplyId(id);
             }
-         } else {
-             throw new NotFoundException("Comment not found");
-         }
+        } else {
+            throw new NotFoundException("Comment not found");
+        }
 
     }
-//delete all comment of post
-    public void deleteAllComment(String postId) {
-        System.out.println("ihihi");
-         List<Comment> comments = commentRepository.findByPostId(postId);
-         if(comments.size()!=0) {
-             System.out.println("ihihi");
-             commentRepository.deleteByPostId(postId);
-         }else {
-             throw new NotFoundException("comment not found");
-         }
-    }
-
 }

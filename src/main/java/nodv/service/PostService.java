@@ -5,6 +5,7 @@ import nodv.exception.NotFoundException;
 import nodv.model.Post;
 import nodv.model.Topic;
 import nodv.model.User;
+import nodv.repository.CommentRepository;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class PostService {
     PostRepository postRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    CommentRepository commentRepository;
 
     @Autowired
     TokenProvider tokenProvider;
@@ -71,8 +74,12 @@ public class PostService {
 
     public void deletePost(String id, String userId) {
         Post post = findById(id);
-        if (post.getUser().getId().equals(userId))
+        if (post.getUser().getId().equals(userId)){
             postRepository.deleteById(id);
+            commentRepository.deleteByPostId(id);
+        }
+
+
         else throw new ForbiddenException("You do not have permission to delete this post");
 
     }

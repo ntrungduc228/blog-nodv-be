@@ -86,7 +86,6 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         postService.deletePost(id, userId);
-        commentService.deleteAllComment(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 

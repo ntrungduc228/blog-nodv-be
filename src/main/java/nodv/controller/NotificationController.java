@@ -22,15 +22,21 @@ public class NotificationController {
     TokenProvider tokenProvider;
 
     //get notifications
+
     @GetMapping("")
     public ResponseEntity<?> getNotifications(
             HttpServletRequest request,
-            @RequestParam(value="isRead",required = false) String isRead) throws Exception {
+            @RequestParam(value="isRead",required = false) String isRead,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        List<Notification> notifications = notificationService.findByReceiverId(userId,isRead);
+        List<Notification> notifications = notificationService.findByReceiverId(userId,isRead,page,limit);
         return new ResponseEntity<>(notifications,HttpStatus.OK);
     }
+
+
+
     //create notification
     @PostMapping("")
     public ResponseEntity<?> createNotification(HttpServletRequest request,@RequestBody Notification notification) {
@@ -45,4 +51,5 @@ public class NotificationController {
         Notification updateNotification = notificationService.updateNotification(id);
         return new ResponseEntity<>(updateNotification,HttpStatus.OK);
     }
+
 }

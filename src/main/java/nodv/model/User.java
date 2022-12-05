@@ -33,10 +33,12 @@ public class User {
     private Boolean isActive;
     private AuthProvider provider;
     private String providerId;
+
     private List<String> topics;
 
-//    private String bookmarkId;
-//    private Bookmark bookmark;
+
+    private Integer notificationsCount;
+
 
     private String bio;
     //tao 2 mang liststring: followingId, FollowerId
