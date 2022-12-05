@@ -5,10 +5,15 @@ import nodv.model.Notification;
 import nodv.model.User;
 import nodv.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 public class NotificationService {
@@ -17,10 +22,11 @@ public class NotificationService {
     @Autowired
     UserService userService;
 
-    public List<Notification> findByReceiverId(String receiverId, String isRead) throws Exception {
+    public List<Notification> findByReceiverId(String receiverId, String isRead,int page, int limit) throws Exception {
+        Pageable pageable = PageRequest.of(page, limit, DESC, "createdDate");
         if(isRead == null)
-            return notificationRepository.findByReceiverId(receiverId);
-        return notificationRepository.findByReceiverIdAndIsRead(receiverId, Boolean.valueOf(isRead));
+            return notificationRepository.findByReceiverId(receiverId,pageable);
+        return notificationRepository.findByReceiverIdAndIsRead(receiverId, Boolean.valueOf(isRead),pageable);
     }
 
     public Notification createNotification(Notification notification,String userId){
@@ -43,5 +49,6 @@ public class NotificationService {
         updateNotification.get().setIsRead(true);
         return notificationRepository.save(updateNotification.get());
     }
+
 
 }

@@ -95,4 +95,12 @@ public class UserController {
         User userUpdate = userService.setTopics(user, userId);
         return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
+    // update count numOfNotifications
+    @PatchMapping("/{userId}")
+    public ResponseEntity<?> updateCountNotifications(@PathVariable  String userId , @RequestParam(value="isIncrease",required = false) String isIncrease ){
+        User user = userService.updateCountNotifications(userId, isIncrease);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+
+
+    }
 }

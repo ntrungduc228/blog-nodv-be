@@ -58,6 +58,7 @@ public class UserService {
     }
 
 
+
     public List<User> getAllUserT(String userId, int page, int limit) {
         Pageable pageable = PageRequest.of(page, limit);
         //List <User> listUserNotContains = userRepository.findByFollowerIdNotContaining(userId, pageable);
@@ -141,5 +142,15 @@ public class UserService {
         User userUpdate = findById(userId);
         userUpdate.setTopics(user.getTopics());
         return userRepository.save(userUpdate);
+}
+    public User updateCountNotifications(String userId, String isIncrease) {
+        User user = this.findById(userId);
+
+        if (Boolean.valueOf(isIncrease)) {
+            Integer countNotification = user.getNotificationsCount() != null ? user.getNotificationsCount() + 1 : 1;
+            user.setNotificationsCount(countNotification);
+        } else user.setNotificationsCount(0);
+        System.out.println(user.getNotificationsCount());
+        return userRepository.save(user);
     }
 }
