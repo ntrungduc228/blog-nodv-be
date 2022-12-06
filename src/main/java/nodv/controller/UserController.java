@@ -103,4 +103,21 @@ public class UserController {
 
 
     }
+    //get user follower
+    @GetMapping("/follower")
+    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List  <User> userFollower = userService.getUsersFollower(userId);
+
+        return new ResponseEntity<>(userFollower,HttpStatus.OK );
+    }
+    //get user following
+    @GetMapping("/following")
+    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List  <User> userFollower = userService.getUsersFollowing(userId);
+
+        return new ResponseEntity<>(userFollower,HttpStatus.OK );
+    }
+
 }
