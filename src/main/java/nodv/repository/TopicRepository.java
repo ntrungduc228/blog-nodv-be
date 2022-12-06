@@ -1,6 +1,7 @@
 package nodv.repository;
 
 import nodv.model.Topic;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface TopicRepository extends MongoRepository<Topic, String> {
     List<Topic> findByNameLikeIgnoreCase(String name);
 
     List<Topic> findByIdIn(List<String> topics);
+
+   List <Topic> findByIdNotContaining(List<String> topics );
 }

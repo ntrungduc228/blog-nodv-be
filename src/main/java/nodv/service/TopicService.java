@@ -5,12 +5,15 @@ import nodv.model.Topic;
 import nodv.model.User;
 import nodv.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class TopicService {
@@ -57,5 +60,26 @@ public class TopicService {
         Optional<Topic> topic = topicRepository.findBySlug(slug);
         if (topic.isEmpty()) throw new NotFoundException("Topic not found");
         return topic.get();
+    }
+
+    public List<Topic> getRecommendTopicForUser(String userId){
+        User user = userService.findById(userId);
+        List<Topic> myRecommendTopic =topicRepository.findByIdNotContaining(user.getTopics());
+        Random rand = new Random();
+        List<Topic> ramdomTopics = new ArrayList<>();
+
+        if(user.getTopics() == null){
+            for(int i = 0; i < 10; i++){
+                int ramdomIndex = rand.nextInt(myRecommendTopic.size());
+                ramdomTopics.add(myRecommendTopic.get(ramdomIndex));
+            }
+            return ramdomTopics;
+        }
+
+        for(int i = 0; i < 10; i++){
+            int ramdomIndex = rand.nextInt(myRecommendTopic.size());
+            ramdomTopics.add(myRecommendTopic.get(ramdomIndex));
+        }
+        return ramdomTopics;
     }
 }

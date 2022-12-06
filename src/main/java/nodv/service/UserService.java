@@ -2,6 +2,7 @@ package nodv.service;
 
 import nodv.exception.NotFoundException;
 import nodv.model.Post;
+import nodv.model.Topic;
 import nodv.model.User;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @Service
 public class UserService {
@@ -58,29 +59,16 @@ public class UserService {
     }
 
 
-    public List<User> getAllUserT(String userId, int page, int limit) {
-        Pageable pageable = PageRequest.of(page, limit);
-        //List <User> listUserNotContains = userRepository.findByFollowerIdNotContaining(userId, pageable);
 
-        //      User userID = findById(userId); //User admin
-//
-//        List<String> followingId = userID.getFollowingId();
 
-//        if(followingId != null) {
-//            int index = 0;
-//            for (String followId : followingId) { //Dang chay=> User Id Following cua admin dang chay list string
-//                User userFL = findById(followId);
-//                for (User id : lstUser) {
-//                    if (id.getId().equals(followId)) {
-//                        index = lstUser.indexOf(id);
-//                        lstUser.remove(index);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-        return userRepository.findByIdNotAndFollowerIdNotContaining(userId, userId, pageable);
+    public List<User> getUsesNotFollowed(String userId,  int limit) {
+        User user = findById(userId);
+        List<String> userIdsIgnore = new ArrayList<>(); // list skip user
+        userIdsIgnore.add(userId); // add skip user(sender) send request
+        if (user.getFollowingId() != null) userIdsIgnore.addAll(user.getFollowingId()); // check null list
+        return userRepository.findRandomNotFollowed(userIdsIgnore, limit);
     }
+
 
     public User followUser(String userId, String followId) {
         Optional<User> user = userRepository.findById(followId);
@@ -112,8 +100,8 @@ public class UserService {
         return findById(followId);
     }
 
-    public User unfollowUser(String userId, String unfollowId) {
-        Optional<User> user = userRepository.findById(unfollowId);
+    public User unFollowUser(String userId, String unFollowId) {
+        Optional<User> user = userRepository.findById(unFollowId);
         if (user.isEmpty())
             throw new NotFoundException("User not found");
         Query query = new Query();
@@ -122,11 +110,11 @@ public class UserService {
 
 
         Query query2 = new Query();
-        Criteria criteria2 = Criteria.where("id").is(unfollowId);
+        Criteria criteria2 = Criteria.where("id").is(unFollowId);
         query2.addCriteria(criteria2);
 
         Update update = new Update();
-        update.pull("followingId", unfollowId);
+        update.pull("followingId", unFollowId);
         mongoTemplate.updateFirst(query, update, User.class);
 
 
@@ -134,7 +122,7 @@ public class UserService {
         update2.pull("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(unfollowId);
+        return findById(unFollowId);
     }
 
     public User setTopics(User user, String userId) {

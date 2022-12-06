@@ -39,10 +39,6 @@ public class User {
 //    private Bookmark bookmark;
 
     private String bio;
-    //tao 2 mang liststring: followingId, FollowerId
-    //follow, unfollow
-    //thoa 2 dk: user follow ton tai
-    //update er.dcTheoDoi -ing.dangTheoDoi cap nhap hai chieu
 
     private List<String> followingId;
     private List<String> followerId;

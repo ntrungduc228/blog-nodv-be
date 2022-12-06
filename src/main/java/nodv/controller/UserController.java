@@ -9,12 +9,16 @@ import nodv.service.TopicService;
 import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Random;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -53,11 +57,12 @@ public class UserController {
         return new ResponseEntity<>(users.get(), HttpStatus.OK);
     }
 
-    @GetMapping("/getAllUnFollow")
-    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request,  @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                             @RequestParam(value = "limit", defaultValue = "3", required = false) int limit){
+    @GetMapping("/getUsersNotFollowed")
+    public  ResponseEntity<?> getUsersNotFollowed(HttpServletRequest request,    @RequestParam(value = "limit", defaultValue = "5", required = false) int limit){
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-      List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
+        System.out.println(userId);
+
+        List  <User> FollowingId = userService.getUsesNotFollowed(userId,   limit);
 
         return new ResponseEntity<>(FollowingId,HttpStatus.OK );
     }
@@ -76,10 +81,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PatchMapping("/unfollow/{unfollowId}")
-    public ResponseEntity<?> unFollowUser(@PathVariable String unfollowId, HttpServletRequest request) {
+    @PatchMapping("/unFollow/{unFollowId}")
+    public ResponseEntity<?> unFollowUser(@PathVariable String unFollowId, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        User user = userService.unfollowUser(userId, unfollowId);
+        User user = userService.unFollowUser(userId, unFollowId);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     @GetMapping("/topics")
@@ -95,4 +100,14 @@ public class UserController {
         User userUpdate = userService.setTopics(user, userId);
         return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
+
+    @GetMapping("/recommendMyTopic")
+    public ResponseEntity<?> getMyRecommendTopic(HttpServletRequest request){
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List<Topic> myRecommendTopic = topicService.getRecommendTopicForUser(userId);
+
+        return new ResponseEntity<>(myRecommendTopic, HttpStatus.OK);
+    }
+    //Get all Topic for user
+
 }
