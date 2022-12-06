@@ -1,9 +1,6 @@
 package nodv.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,7 +22,6 @@ public class Post extends AuditMetadata {
     private String userId;
     private Integer likes;
     private Integer timeRead;
-    private List<String> topic;
     private Boolean isPublish;
     private List<String> userLikeIds;
     @DBRef

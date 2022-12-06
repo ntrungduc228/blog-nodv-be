@@ -1,6 +1,8 @@
 package nodv.repository;
 
 import nodv.model.Topic;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
@@ -14,4 +16,7 @@ public interface TopicRepository extends MongoRepository<Topic, String> {
     List<Topic> findByNameLikeIgnoreCase(String name);
 
     List<Topic> findByIdIn(List<String> topics);
+
+    @Aggregation(pipeline = {"{$match:{'id' : { $nin: ?0}}}", "{$sample:{size:10}}"})
+    List<Topic> findRandom(List<String> topics);
 }

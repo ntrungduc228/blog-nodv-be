@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,29 +58,12 @@ public class UserService {
         return userRepository.findByUsernameLikeIgnoreCase(name, pageable);
     }
 
-
-    public List<User> getAllUserT(String userId, int page, int limit) {
-        Pageable pageable = PageRequest.of(page, limit);
-        //List <User> listUserNotContains = userRepository.findByFollowerIdNotContaining(userId, pageable);
-
-        //      User userID = findById(userId); //User admin
-//
-//        List<String> followingId = userID.getFollowingId();
-
-//        if(followingId != null) {
-//            int index = 0;
-//            for (String followId : followingId) { //Dang chay=> User Id Following cua admin dang chay list string
-//                User userFL = findById(followId);
-//                for (User id : lstUser) {
-//                    if (id.getId().equals(followId)) {
-//                        index = lstUser.indexOf(id);
-//                        lstUser.remove(index);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-        return userRepository.findByIdNotAndFollowerIdNotContaining(userId, userId, pageable);
+    public List<User> getUsesNotFollowed(String userId, int limit) {
+        User user = findById(userId);
+        List<String> userIdsIgnore = new ArrayList<>(); // list skip user
+        userIdsIgnore.add(userId); // add skip user(sender) send request
+        if (user.getFollowingId() != null) userIdsIgnore.addAll(user.getFollowingId()); // check null list
+        return userRepository.findRandomNotFollowed(userIdsIgnore, limit);
     }
 
     public User followUser(String userId, String followId) {
