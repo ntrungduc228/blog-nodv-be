@@ -153,4 +153,16 @@ public class UserService {
         System.out.println(user.getNotificationsCount());
         return userRepository.save(user);
     }
+
+    //get user Follower
+    public List<User> getUsersFollower(String userId) {
+        return userRepository.findByFollowingIdContaining(userId);
+
+    }
+    //get user Following
+    public List<User> getUsersFollowing(String userId) {
+        return userRepository.findByFollowerIdContaining(userId);
+
+    }
 }
+
