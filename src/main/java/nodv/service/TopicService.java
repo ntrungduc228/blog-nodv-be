@@ -6,6 +6,7 @@ import nodv.model.User;
 import nodv.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,5 +58,15 @@ public class TopicService {
         Optional<Topic> topic = topicRepository.findBySlug(slug);
         if (topic.isEmpty()) throw new NotFoundException("Topic not found");
         return topic.get();
+    }
+
+    public List<Topic> findRecommend(String userId) {
+        User user = userService.findById(userId);
+        return topicRepository.findRandom(user.getTopics());
+    }
+
+    public List<Topic> findRandom() {
+        List<String> topics = new ArrayList<>();
+        return topicRepository.findRandom(topics);
     }
 }

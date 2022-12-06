@@ -1,12 +1,16 @@
 package nodv.controller;
 
 import nodv.model.Topic;
+import nodv.security.TokenProvider;
 import nodv.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -15,6 +19,8 @@ import java.util.List;
 public class TopicController {
     @Autowired
     TopicService topicService;
+    @Autowired
+    TokenProvider tokenProvider;
 
     @GetMapping("")
     ResponseEntity<?> getTopics() {
@@ -25,6 +31,19 @@ public class TopicController {
     @GetMapping("/search")
     ResponseEntity<?> searchTopics(@RequestParam(value = "q", required = true) String name) {
         List<Topic> topics = topicService.searchByName(name);
+        return new ResponseEntity<>(topics, HttpStatus.OK);
+    }
+
+    @GetMapping("/random")
+    ResponseEntity<?> getRandomTopics() {
+        List<Topic> topics = topicService.findRandom();
+        return new ResponseEntity<>(topics, HttpStatus.OK);
+    }
+
+    @GetMapping("/recommend")
+    ResponseEntity<?> getRecommendTopics(HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List<Topic> topics = topicService.findRecommend(userId);
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 }
