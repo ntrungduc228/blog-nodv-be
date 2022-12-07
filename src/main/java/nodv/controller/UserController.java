@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,9 @@ public class UserController {
 
     @Autowired
     TokenProvider tokenProvider;
+
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/{email}")
     public ResponseEntity<?> getUser(@PathVariable String email) {
@@ -89,29 +93,28 @@ public class UserController {
         User userUpdate = userService.setTopics(user, userId);
         return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
+
     // update count numOfNotifications
     @PatchMapping("/{userId}")
-    public ResponseEntity<?> updateCountNotifications(@PathVariable  String userId , @RequestParam(value="isIncrease",required = false) String isIncrease ){
+    public ResponseEntity<?> updateCountNotifications(@PathVariable String userId, @RequestParam(value = "isIncrease", required = false) String isIncrease) {
         User user = userService.updateCountNotifications(userId, isIncrease);
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user);
         return new ResponseEntity<>(user, HttpStatus.OK);
-
-
     }
+
     //get user follower
-    @GetMapping("/follower")
-    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request) {
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        List  <User> userFollower = userService.getUsersFollower(userId);
+    @GetMapping("/{id}/follower")
+    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request, @PathVariable String id) {
+        List<User> userFollower = userService.getUsersFollower(id);
 
-        return new ResponseEntity<>(userFollower,HttpStatus.OK );
+        return new ResponseEntity<>(userFollower, HttpStatus.OK);
     }
-    //get user following
-    @GetMapping("/following")
-    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request) {
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        List  <User> userFollower = userService.getUsersFollowing(userId);
 
-        return new ResponseEntity<>(userFollower,HttpStatus.OK );
+    //get user following
+    @GetMapping("/{id}/following")
+    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request, @PathVariable String id) {
+        List<User> userFollower = userService.getUsersFollowing(id);
+        return new ResponseEntity<>(userFollower, HttpStatus.OK);
     }
 
 }

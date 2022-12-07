@@ -49,9 +49,10 @@ public class PostController {
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    @GetMapping("/user/{email}")
-    public ResponseEntity<?> getPostsByUser() {
-        return new ResponseEntity<>("", HttpStatus.OK);
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getPostsByUser(@PathVariable String id) {
+        List<Post> posts = postService.findOwnedPost(id, "true");
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     ;

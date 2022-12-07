@@ -6,6 +6,7 @@ import nodv.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,8 +22,10 @@ public class NotificationController {
     @Autowired
     TokenProvider tokenProvider;
 
-    //get notifications
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
+    //get notifications
     @GetMapping("")
     public ResponseEntity<?> getNotifications(
             HttpServletRequest request,
@@ -43,6 +46,7 @@ public class NotificationController {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Notification newNotification = notificationService.createNotification(notification,userId);
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
         return new ResponseEntity<>(notification,HttpStatus.OK);
     }
     //update
