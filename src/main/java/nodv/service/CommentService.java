@@ -73,9 +73,6 @@ public class CommentService {
     //get comment
     public List<Comment> findByPostId(String postId) throws Exception {
         List<Comment> comments = commentRepository.findByPostId(postId);
-        if(comments.size()==0) {
-            throw new Exception("Notification not found");
-        }
         return comments;
     }
 //Delete comment
