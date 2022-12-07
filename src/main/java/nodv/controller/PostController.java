@@ -132,7 +132,7 @@ public class PostController {
 
     //get comment
     @GetMapping("/{id}/comments")
-    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception {
+    public ResponseEntity<?> getComment(@PathVariable String id) {
         List<Comment> comments = commentService.findByPostId(id);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }

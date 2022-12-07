@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,9 @@ public class UserController {
 
     @Autowired
     TokenProvider tokenProvider;
+
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/{email}")
     public ResponseEntity<?> getUser(@PathVariable String email) {
@@ -94,9 +98,8 @@ public class UserController {
     @PatchMapping("/{userId}")
     public ResponseEntity<?> updateCountNotifications(@PathVariable String userId, @RequestParam(value = "isIncrease", required = false) String isIncrease) {
         User user = userService.updateCountNotifications(userId, isIncrease);
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user);
         return new ResponseEntity<>(user, HttpStatus.OK);
-
-
     }
 
     //get user follower
