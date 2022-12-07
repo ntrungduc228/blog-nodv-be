@@ -54,21 +54,14 @@ public class UserController {
     }
 
     @GetMapping("/getAllUnFollow")
-    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request,  @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                             @RequestParam(value = "limit", defaultValue = "3", required = false) int limit){
+    public ResponseEntity<?> getAllUnFollow(HttpServletRequest request,
+                                            @RequestParam(value = "limit", defaultValue = "5", required = false)
+                                            int limit) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-      List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
-
-        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
+        List<User> FollowingId = userService.getUsesNotFollowed(userId, limit);
+        return new ResponseEntity<>(FollowingId, HttpStatus.OK);
     }
-//
-//    @GetMapping("/getAllUnFollow")
-//    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request){
-//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-//        List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
-//
-//        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
-//    }
+
     @PatchMapping("/follow/{followId}")
     public ResponseEntity<?> followUser(@PathVariable String followId, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
@@ -82,6 +75,7 @@ public class UserController {
         User user = userService.unfollowUser(userId, unfollowId);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
     @GetMapping("/topics")
     public ResponseEntity<?> getOwnTopics(HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
