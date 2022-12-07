@@ -6,6 +6,7 @@ import nodv.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +20,15 @@ public class CommentController {
     CommentService commentService;
     @Autowired
     TokenProvider tokenProvider;
-
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
     //create
     @PostMapping("")
     public ResponseEntity<?> createComment(HttpServletRequest request, @RequestBody Comment comment) throws Exception{
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Comment newComment = commentService.createComment(comment,userId);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + comment.getPostId()+ "/comment", comment);
         return new ResponseEntity<>(comment, HttpStatus.OK);
     }
     //update
@@ -33,6 +36,7 @@ public class CommentController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateComment(@PathVariable String id,@RequestBody Comment comment) throws Exception {
         Comment updateComment = commentService.updateComment(id,comment);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + comment.getPostId()+ "/updatecomment", updateComment);
         return new ResponseEntity<>(updateComment,HttpStatus.OK);
     }
     //update comment like
