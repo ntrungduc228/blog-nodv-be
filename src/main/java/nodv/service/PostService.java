@@ -75,13 +75,10 @@ public class PostService {
 
     public void deletePost(String id, String userId) {
         Post post = findById(id);
-        if (post.getUser().getId().equals(userId)){
+        if (post.getUser().getId().equals(userId)) {
             postRepository.deleteById(id);
             commentRepository.deleteByPostId(id);
-        }
-
-
-        else throw new ForbiddenException("You do not have permission to delete this post");
+        } else throw new ForbiddenException("You do not have permission to delete this post");
 
     }
 
@@ -120,9 +117,7 @@ public class PostService {
 
     public List<Post> findOwnedPost(String userId, String isPublish) {
         if (isPublish == null) {
-
             return postRepository.findByUserId(userId);
-
         } else {
             return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
         }

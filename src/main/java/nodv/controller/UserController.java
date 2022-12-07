@@ -89,29 +89,29 @@ public class UserController {
         User userUpdate = userService.setTopics(user, userId);
         return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
+
     // update count numOfNotifications
     @PatchMapping("/{userId}")
-    public ResponseEntity<?> updateCountNotifications(@PathVariable  String userId , @RequestParam(value="isIncrease",required = false) String isIncrease ){
+    public ResponseEntity<?> updateCountNotifications(@PathVariable String userId, @RequestParam(value = "isIncrease", required = false) String isIncrease) {
         User user = userService.updateCountNotifications(userId, isIncrease);
         return new ResponseEntity<>(user, HttpStatus.OK);
 
 
     }
+
     //get user follower
-    @GetMapping("/follower")
-    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request) {
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        List  <User> userFollower = userService.getUsersFollower(userId);
+    @GetMapping("/{id}/follower")
+    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request, @PathVariable String id) {
+        List<User> userFollower = userService.getUsersFollower(id);
 
-        return new ResponseEntity<>(userFollower,HttpStatus.OK );
+        return new ResponseEntity<>(userFollower, HttpStatus.OK);
     }
-    //get user following
-    @GetMapping("/following")
-    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request) {
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        List  <User> userFollower = userService.getUsersFollowing(userId);
 
-        return new ResponseEntity<>(userFollower,HttpStatus.OK );
+    //get user following
+    @GetMapping("/{id}/following")
+    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request, @PathVariable String id) {
+        List<User> userFollower = userService.getUsersFollowing(id);
+        return new ResponseEntity<>(userFollower, HttpStatus.OK);
     }
 
 }
