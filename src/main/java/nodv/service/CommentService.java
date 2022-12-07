@@ -60,15 +60,15 @@ public class CommentService {
     }
     //update unlike
     public Comment updateUnlike(String id,String userId) throws Exception{
-        Optional<Comment> updateunlike= commentRepository.findById(id);
-        if(updateunlike.isEmpty()) {
+        Optional<Comment> updateUnlike= commentRepository.findById(id);
+        if(updateUnlike.isEmpty()) {
             throw new Exception("comment not found");
         }
-        List<String> temp = updateunlike.get().getUserlikeids();
+        List<String> temp = updateUnlike.get().getUserlikeids();
         temp.remove(userId);
-        updateunlike.get().setUserlikeids(temp);
+        updateUnlike.get().setUserlikeids(temp);
 
-        return commentRepository.save(updateunlike.get());
+        return commentRepository.save(updateUnlike.get());
     }
     //get comment
     public List<Comment> findByPostId(String postId) {
@@ -81,8 +81,8 @@ public class CommentService {
 
         if (comment.isPresent()) {
             commentRepository.deleteById(id);
-            List<Comment> commentchilren = commentRepository.findByReplyId(id);
-            if (commentchilren.size() != 0) {
+            List<Comment> commentChildren = commentRepository.findByReplyId(id);
+            if (commentChildren.size() != 0) {
                 commentRepository.deleteByReplyId(id);
             }
         } else {
