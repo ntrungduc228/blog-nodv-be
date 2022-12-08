@@ -62,24 +62,14 @@ public class TopicService {
         return topic.get();
     }
 
-    public List<Topic> getRecommendTopicForUser(String userId){
+
+    public List<Topic> findRecommend(String userId) {
         User user = userService.findById(userId);
-        List<Topic> myRecommendTopic =topicRepository.findByIdNotContaining(user.getTopics());
-        Random rand = new Random();
-        List<Topic> ramdomTopics = new ArrayList<>();
+        return topicRepository.findRandom(user.getTopics());
+    }
 
-        if(user.getTopics() == null){
-            for(int i = 0; i < 10; i++){
-                int ramdomIndex = rand.nextInt(myRecommendTopic.size());
-                ramdomTopics.add(myRecommendTopic.get(ramdomIndex));
-            }
-            return ramdomTopics;
-        }
-
-        for(int i = 0; i < 10; i++){
-            int ramdomIndex = rand.nextInt(myRecommendTopic.size());
-            ramdomTopics.add(myRecommendTopic.get(ramdomIndex));
-        }
-        return ramdomTopics;
+    public List<Topic> findRandom() {
+        List<String> topics = new ArrayList<>();
+        return topicRepository.findRandom(topics);
     }
 }

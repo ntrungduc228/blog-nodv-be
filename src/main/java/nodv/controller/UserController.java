@@ -101,13 +101,13 @@ public class UserController {
         return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
 
-    @GetMapping("/recommendMyTopic")
-    public ResponseEntity<?> getMyRecommendTopic(HttpServletRequest request){
-        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        List<Topic> myRecommendTopic = topicService.getRecommendTopicForUser(userId);
-
-        return new ResponseEntity<>(myRecommendTopic, HttpStatus.OK);
-    }
+//    @GetMapping("/recommendMyTopic")
+//    public ResponseEntity<?> getMyRecommendTopic(HttpServletRequest request){
+//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+//        List<Topic> myRecommendTopic = topicService.getRecommendTopicForUser(userId);
+//
+//        return new ResponseEntity<>(myRecommendTopic, HttpStatus.OK);
+//    }
     //Get all Topic for user
 
 }
