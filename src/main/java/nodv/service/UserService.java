@@ -135,7 +135,7 @@ public class UserService {
             Integer countNotification = user.getNotificationsCount() != null ? user.getNotificationsCount() + 1 : 1;
             user.setNotificationsCount(countNotification);
         } else user.setNotificationsCount(0);
-        System.out.println(user.getNotificationsCount());
+        System.out.println("count notification user service" + user.getNotificationsCount());
         return userRepository.save(user);
     }
 
