@@ -2,6 +2,7 @@ package nodv.service;
 
 import nodv.exception.NotFoundException;
 import nodv.model.Post;
+import nodv.model.Topic;
 import nodv.model.User;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class UserService {
     }
 
 
+
     public List<User> getUsesNotFollowed(String userId, int limit) {
         User user = findById(userId);
         List<String> userIdsIgnore = new ArrayList<>(); // list skip user
@@ -66,6 +68,7 @@ public class UserService {
         if (user.getFollowingId() != null) userIdsIgnore.addAll(user.getFollowingId()); // check null list
         return userRepository.findRandomNotFollowed(userIdsIgnore, limit);
     }
+
 
     public User followUser(String userId, String followId) {
         Optional<User> user = userRepository.findById(followId);
@@ -97,8 +100,8 @@ public class UserService {
         return findById(followId);
     }
 
-    public User unfollowUser(String userId, String unfollowId) {
-        Optional<User> user = userRepository.findById(unfollowId);
+    public User unFollowUser(String userId, String unFollowId) {
+        Optional<User> user = userRepository.findById(unFollowId);
         if (user.isEmpty())
             throw new NotFoundException("User not found");
         Query query = new Query();
@@ -107,11 +110,11 @@ public class UserService {
 
 
         Query query2 = new Query();
-        Criteria criteria2 = Criteria.where("id").is(unfollowId);
+        Criteria criteria2 = Criteria.where("id").is(unFollowId);
         query2.addCriteria(criteria2);
 
         Update update = new Update();
-        update.pull("followingId", unfollowId);
+        update.pull("followingId", unFollowId);
         mongoTemplate.updateFirst(query, update, User.class);
 
 
@@ -119,7 +122,7 @@ public class UserService {
         update2.pull("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(unfollowId);
+        return findById(unFollowId);
     }
 
     public User setTopics(User user, String userId) {

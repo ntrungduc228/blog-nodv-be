@@ -31,6 +31,7 @@ public class BookmarkService {
         Bookmark bookmark = new Bookmark();
         bookmark.setUserId(bookmarkDTO.getUserId());
         List<String> listPostIds = new ArrayList<>();
+        System.out.println(bookmarkDTO.getPostId().isEmpty());
         if(!bookmarkDTO.getPostId().isEmpty()) {
             listPostIds.add(bookmarkDTO.getPostId());
         }

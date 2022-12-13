@@ -8,8 +8,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -46,4 +44,5 @@ public class TopicController {
         List<Topic> topics = topicService.findRecommend(userId);
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
+
 }
