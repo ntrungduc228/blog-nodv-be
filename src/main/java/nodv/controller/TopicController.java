@@ -44,4 +44,5 @@ public class TopicController {
         List<Topic> topics = topicService.findRecommend(userId);
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
+
 }

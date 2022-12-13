@@ -66,6 +66,7 @@ public class UserService {
         return userRepository.findRandomNotFollowed(userIdsIgnore, limit);
     }
 
+
     public User followUser(String userId, String followId) {
         Optional<User> user = userRepository.findById(followId);
         if (user.isEmpty())
@@ -96,8 +97,8 @@ public class UserService {
         return findById(followId);
     }
 
-    public User unfollowUser(String userId, String unfollowId) {
-        Optional<User> user = userRepository.findById(unfollowId);
+    public User unFollowUser(String userId, String unFollowId) {
+        Optional<User> user = userRepository.findById(unFollowId);
         if (user.isEmpty())
             throw new NotFoundException("User not found");
         Query query = new Query();
@@ -106,11 +107,11 @@ public class UserService {
 
 
         Query query2 = new Query();
-        Criteria criteria2 = Criteria.where("id").is(unfollowId);
+        Criteria criteria2 = Criteria.where("id").is(unFollowId);
         query2.addCriteria(criteria2);
 
         Update update = new Update();
-        update.pull("followingId", unfollowId);
+        update.pull("followingId", unFollowId);
         mongoTemplate.updateFirst(query, update, User.class);
 
 
@@ -118,7 +119,7 @@ public class UserService {
         update2.pull("followerId", userId);
         mongoTemplate.updateFirst(query2, update2, User.class);
 
-        return findById(unfollowId);
+        return findById(unFollowId);
     }
 
     public User setTopics(User user, String userId) {
@@ -134,7 +135,7 @@ public class UserService {
             Integer countNotification = user.getNotificationsCount() != null ? user.getNotificationsCount() + 1 : 1;
             user.setNotificationsCount(countNotification);
         } else user.setNotificationsCount(0);
-        System.out.println(user.getNotificationsCount());
+        System.out.println("count notification user service" + user.getNotificationsCount());
         return userRepository.save(user);
     }
 

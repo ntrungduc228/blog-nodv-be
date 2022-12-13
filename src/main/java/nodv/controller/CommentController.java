@@ -45,6 +45,8 @@ public class CommentController {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Comment comment1 = commentService.updatelike(id,userId);
+        simpMessagingTemplate.convertAndSend("/topic/likecomment", comment1);
+
         return new ResponseEntity<>(comment1,HttpStatus.OK);
     }
     //update comment like
@@ -53,6 +55,7 @@ public class CommentController {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Comment comment1 = commentService.updateUnlike(id,userId);
+        simpMessagingTemplate.convertAndSend("/topic/unlikecomment", comment1);
         return new ResponseEntity<>(comment1,HttpStatus.OK);
     }
 
@@ -60,6 +63,7 @@ public class CommentController {
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteComment(@PathVariable String id) throws Exception{
        commentService.deleteComment(id);
+       simpMessagingTemplate.convertAndSend("/topic/deletecomment", id);
        return new ResponseEntity<>(id,HttpStatus.OK);
     }
 }
