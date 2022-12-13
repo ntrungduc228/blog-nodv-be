@@ -5,22 +5,24 @@ import nodv.exception.NotFoundException;
 import nodv.model.Post;
 import nodv.model.Topic;
 import nodv.model.User;
+import nodv.repository.CommentRepository;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PostService {
@@ -28,6 +30,8 @@ public class PostService {
     PostRepository postRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    CommentRepository commentRepository;
 
     @Autowired
     TokenProvider tokenProvider;
@@ -71,9 +75,10 @@ public class PostService {
 
     public void deletePost(String id, String userId) {
         Post post = findById(id);
-        if (post.getUser().getId().equals(userId))
+        if (post.getUser().getId().equals(userId)) {
             postRepository.deleteById(id);
-        else throw new ForbiddenException("You do not have permission to delete this post");
+            commentRepository.deleteByPostId(id);
+        } else throw new ForbiddenException("You do not have permission to delete this post");
 
     }
 
@@ -85,12 +90,15 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Page<Post> findAll(int page, int limit, String topicSlug) {
-        Pageable pageable = PageRequest.of(page, limit);
+    public Page<Post> findAll(int page, int limit, String title, String topicSlug) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         Query query = new Query().with(pageable);
         List<Criteria> criteria = new ArrayList<>();
         criteria.add(Criteria.where("isPublish").is(true));
 
+        if (title != null && !title.isEmpty()) {
+            criteria.add(Criteria.where("title").regex(title, "i"));
+        }
 
         if (topicSlug != null && !topicSlug.equals("all") && !topicSlug.isBlank()) {
             Topic topic = topicService.findBySlug(topicSlug);
@@ -109,9 +117,7 @@ public class PostService {
 
     public List<Post> findOwnedPost(String userId, String isPublish) {
         if (isPublish == null) {
-
             return postRepository.findByUserId(userId);
-
         } else {
             return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
         }
@@ -137,5 +143,26 @@ public class PostService {
         update.pull("userLikeIds", userId);
         mongoTemplate.updateFirst(query, update, Post.class);
         return findById(id);
+    }
+
+    public List<Document> findTopByLike(int limit) {
+        LookupOperation lookupOperation = Aggregation.lookup("users", "user.$id", "_id", "user");
+        ProjectionOperation projectionOperation = Aggregation.project()
+                .andInclude("title", "timeRead", "id", "createdDate")
+                .andExclude("_id")
+                .and(ArrayOperators.Size.lengthOfArray(ConditionalOperators.ifNull("userLikeIds")
+                        .then(Collections.emptyList())))
+                .as("likeCount")
+                .and(ArrayOperators.ArrayElemAt.arrayOf("user").elementAt(0)).as("user");
+        SortOperation sortOperation = Aggregation.sort(Sort.Direction.DESC, "likeCount");
+        LimitOperation limitOperation = Aggregation.limit(limit);
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                lookupOperation,
+                projectionOperation,
+                sortOperation,
+                limitOperation
+        );
+        return mongoTemplate.aggregate(aggregation, Post.class, Document.class).getMappedResults();
     }
 }

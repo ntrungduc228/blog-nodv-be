@@ -60,49 +60,34 @@ public class CommentService {
     }
     //update unlike
     public Comment updateUnlike(String id,String userId) throws Exception{
-        Optional<Comment> updateunlike= commentRepository.findById(id);
-        if(updateunlike.isEmpty()) {
+        Optional<Comment> updateUnlike= commentRepository.findById(id);
+        if(updateUnlike.isEmpty()) {
             throw new Exception("comment not found");
         }
-        List<String> temp = updateunlike.get().getUserlikeids();
+        List<String> temp = updateUnlike.get().getUserlikeids();
         temp.remove(userId);
-        updateunlike.get().setUserlikeids(temp);
+        updateUnlike.get().setUserlikeids(temp);
 
-        return commentRepository.save(updateunlike.get());
+        return commentRepository.save(updateUnlike.get());
     }
     //get comment
-    public List<Comment> findByPostId(String postId) throws Exception {
+    public List<Comment> findByPostId(String postId) {
         List<Comment> comments = commentRepository.findByPostId(postId);
-        if(comments.size()==0) {
-            throw new Exception("Notification not found");
-        }
         return comments;
     }
 //Delete comment
     public void deleteComment(String id) {
-         Optional<Comment> comment = commentRepository.findById(id);
+        Optional<Comment> comment = commentRepository.findById(id);
 
-         if(comment.isPresent()) {
+        if (comment.isPresent()) {
             commentRepository.deleteById(id);
-            List<Comment> commentchilren = commentRepository.findByReplyId(id);
-            if(commentchilren.size()!=0){
+            List<Comment> commentChildren = commentRepository.findByReplyId(id);
+            if (commentChildren.size() != 0) {
                 commentRepository.deleteByReplyId(id);
             }
-         } else {
-             throw new NotFoundException("Comment not found");
-         }
+        } else {
+            throw new NotFoundException("Comment not found");
+        }
 
     }
-//delete all comment of post
-    public void deleteAllComment(String postId) {
-        System.out.println("ihihi");
-         List<Comment> comments = commentRepository.findByPostId(postId);
-         if(comments.size()!=0) {
-             System.out.println("ihihi");
-             commentRepository.deleteByPostId(postId);
-         }else {
-             throw new NotFoundException("comment not found");
-         }
-    }
-
 }

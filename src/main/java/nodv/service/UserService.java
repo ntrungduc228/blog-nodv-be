@@ -15,8 +15,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -60,8 +61,7 @@ public class UserService {
 
 
 
-
-    public List<User> getUsesNotFollowed(String userId,  int limit) {
+    public List<User> getUsesNotFollowed(String userId, int limit) {
         User user = findById(userId);
         List<String> userIdsIgnore = new ArrayList<>(); // list skip user
         userIdsIgnore.add(userId); // add skip user(sender) send request
@@ -130,4 +130,28 @@ public class UserService {
         userUpdate.setTopics(user.getTopics());
         return userRepository.save(userUpdate);
     }
+
+    public User updateCountNotifications(String userId, String isIncrease) {
+        User user = this.findById(userId);
+
+        if (Boolean.valueOf(isIncrease)) {
+            Integer countNotification = user.getNotificationsCount() != null ? user.getNotificationsCount() + 1 : 1;
+            user.setNotificationsCount(countNotification);
+        } else user.setNotificationsCount(0);
+        System.out.println("count notification user service" + user.getNotificationsCount());
+        return userRepository.save(user);
+    }
+
+    //get user Follower
+    public List<User> getUsersFollower(String userId) {
+        return userRepository.findByFollowingIdContaining(userId);
+
+    }
+
+    //get user Following
+    public List<User> getUsersFollowing(String userId) {
+        return userRepository.findByFollowerIdContaining(userId);
+
+    }
 }
+

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,9 @@ public class UserController {
 
     @Autowired
     TokenProvider tokenProvider;
+
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/{email}")
     public ResponseEntity<?> getUser(@PathVariable String email) {
@@ -66,14 +70,7 @@ public class UserController {
 
         return new ResponseEntity<>(FollowingId,HttpStatus.OK );
     }
-//
-//    @GetMapping("/getAllUnFollow")
-//    public  ResponseEntity<?> getAllUnFollow(HttpServletRequest request){
-//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-//        List  <User> FollowingId = userService.getAllUserT(userId, page, limit);
-//
-//        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
-//    }
+
     @PatchMapping("/follow/{followId}")
     public ResponseEntity<?> followUser(@PathVariable String followId, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
@@ -87,6 +84,7 @@ public class UserController {
         User user = userService.unFollowUser(userId, unFollowId);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
     @GetMapping("/topics")
     public ResponseEntity<?> getOwnTopics(HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
@@ -101,13 +99,27 @@ public class UserController {
         return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
 
-//    @GetMapping("/recommendMyTopic")
-//    public ResponseEntity<?> getMyRecommendTopic(HttpServletRequest request){
-//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-//        List<Topic> myRecommendTopic = topicService.getRecommendTopicForUser(userId);
-//
-//        return new ResponseEntity<>(myRecommendTopic, HttpStatus.OK);
-//    }
-    //Get all Topic for user
 
+    // update count numOfNotifications
+    @PatchMapping("/{userId}")
+    public ResponseEntity<?> updateCountNotifications(@PathVariable String userId, @RequestParam(value = "isIncrease", required = false) String isIncrease) {
+        User user = userService.updateCountNotifications(userId, isIncrease);
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    //get user follower
+    @GetMapping("/{id}/follower")
+    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request, @PathVariable String id) {
+        List<User> userFollower = userService.getUsersFollower(id);
+
+        return new ResponseEntity<>(userFollower, HttpStatus.OK);
+    }
+
+    //get user following
+    @GetMapping("/{id}/following")
+    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request, @PathVariable String id) {
+        List<User> userFollower = userService.getUsersFollowing(id);
+        return new ResponseEntity<>(userFollower, HttpStatus.OK);
+    }
 }

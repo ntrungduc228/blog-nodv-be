@@ -6,6 +6,7 @@ import nodv.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,22 +22,32 @@ public class NotificationController {
     @Autowired
     TokenProvider tokenProvider;
 
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
     //get notifications
     @GetMapping("")
     public ResponseEntity<?> getNotifications(
             HttpServletRequest request,
-            @RequestParam(value="isRead",required = false) String isRead) throws Exception {
+            @RequestParam(value="isRead",required = false) String isRead,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        List<Notification> notifications = notificationService.findByReceiverId(userId,isRead);
+        List<Notification> notifications = notificationService.findByReceiverId(userId,isRead,page,limit);
         return new ResponseEntity<>(notifications,HttpStatus.OK);
     }
+
+
+
     //create notification
     @PostMapping("")
     public ResponseEntity<?> createNotification(HttpServletRequest request,@RequestBody Notification notification) {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Notification newNotification = notificationService.createNotification(notification,userId);
+        System.out.println("id receiver " + newNotification.getReceiverId());
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
         return new ResponseEntity<>(notification,HttpStatus.OK);
     }
     //update
@@ -45,4 +56,5 @@ public class NotificationController {
         Notification updateNotification = notificationService.updateNotification(id);
         return new ResponseEntity<>(updateNotification,HttpStatus.OK);
     }
+
 }

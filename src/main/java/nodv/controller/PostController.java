@@ -5,6 +5,7 @@ import nodv.model.Post;
 import nodv.security.TokenProvider;
 import nodv.service.PostService;
 import nodv.service.CommentService;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.List;
 
 @RestController
@@ -33,15 +35,24 @@ public class PostController {
     public ResponseEntity<?> getPosts(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
-            @RequestParam(value = "topic", required = false) String topic
+            @RequestParam(value = "topic", required = false) String topic,
+            @RequestParam(value = "title", required = false) String title
     ) {
-        Page<Post> posts = postService.findAll(page, limit, topic);
+        Page<Post> posts = postService.findAll(page, limit, title, topic);
         return new ResponseEntity<>(posts.get(), HttpStatus.OK);
     }
 
-    @GetMapping("/user/{email}")
-    public ResponseEntity<?> getPostsByUser() {
-        return new ResponseEntity<>("", HttpStatus.OK);
+    @GetMapping("/trending")
+    public ResponseEntity<?> getPostsTrending(
+            @RequestParam(value = "limit", defaultValue = "6", required = false) int limit) {
+        List<Document> posts = postService.findTopByLike(limit);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getPostsByUser(@PathVariable String id) {
+        List<Post> posts = postService.findOwnedPost(id, "true");
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     ;
@@ -86,7 +97,6 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         postService.deletePost(id, userId);
-        commentService.deleteAllComment(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
@@ -122,7 +132,7 @@ public class PostController {
 
     //get comment
     @GetMapping("/{id}/comments")
-    public ResponseEntity<?> getComment(@PathVariable String id) throws Exception {
+    public ResponseEntity<?> getComment(@PathVariable String id) {
         List<Comment> comments = commentService.findByPostId(id);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }

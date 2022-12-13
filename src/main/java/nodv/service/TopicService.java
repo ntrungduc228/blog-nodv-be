@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -61,7 +62,6 @@ public class TopicService {
         if (topic.isEmpty()) throw new NotFoundException("Topic not found");
         return topic.get();
     }
-
 
     public List<Topic> findRecommend(String userId) {
         User user = userService.findById(userId);
