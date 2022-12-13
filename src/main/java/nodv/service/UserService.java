@@ -1,7 +1,6 @@
 package nodv.service;
 
 import nodv.exception.NotFoundException;
-import nodv.model.Post;
 import nodv.model.User;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,7 +130,7 @@ public class UserService {
     public User updateCountNotifications(String userId, String isIncrease) {
         User user = this.findById(userId);
 
-        if (Boolean.valueOf(isIncrease)) {
+        if (Boolean.parseBoolean(isIncrease)) {
             Integer countNotification = user.getNotificationsCount() != null ? user.getNotificationsCount() + 1 : 1;
             user.setNotificationsCount(countNotification);
         } else user.setNotificationsCount(0);
