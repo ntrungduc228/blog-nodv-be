@@ -1,5 +1,6 @@
 package nodv.repository;
 
+import nodv.model.Topic;
 import nodv.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
