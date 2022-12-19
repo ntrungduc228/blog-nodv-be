@@ -156,7 +156,6 @@ public class PostService {
                 .and(ArrayOperators.ArrayElemAt.arrayOf("user").elementAt(0)).as("user");
         SortOperation sortOperation = Aggregation.sort(Sort.Direction.DESC, "likeCount");
         LimitOperation limitOperation = Aggregation.limit(limit);
-
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupOperation,
                 projectionOperation,
