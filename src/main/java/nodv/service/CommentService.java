@@ -75,7 +75,8 @@ public class CommentService {
 
     //get comment
     public List<Comment> findByPostId(String postId) {
-        return commentRepository.findByPostId(postId);
+        List<Comment> comments = commentRepository.findByPostIdOrderByCreatedDateDesc(postId);
+        return comments;
     }
 
     //Delete comment
