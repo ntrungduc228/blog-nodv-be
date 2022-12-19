@@ -27,19 +27,12 @@ public class User {
     private String password;
     private String avatar;
     private Boolean gender;
-    private Integer followings;
-    private Integer followers;
     private Role role;
     private Boolean isActive;
     private AuthProvider provider;
     private String providerId;
-
     private List<String> topics;
-
-
     private Integer notificationsCount;
-
-
     private String bio;
 
     private List<String> followingId;

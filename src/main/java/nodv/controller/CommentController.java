@@ -22,48 +22,52 @@ public class CommentController {
     TokenProvider tokenProvider;
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+
     //create
     @PostMapping("")
-    public ResponseEntity<?> createComment(HttpServletRequest request, @RequestBody Comment comment) throws Exception{
+    public ResponseEntity<?> createComment(HttpServletRequest request, @RequestBody Comment comment) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        Comment newComment = commentService.createComment(comment,userId);
-        simpMessagingTemplate.convertAndSend("/topic/posts/" + comment.getPostId()+ "/comment", comment);
+        Comment newComment = commentService.createComment(comment, userId);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + newComment.getPostId() + "/comment", newComment);
         return new ResponseEntity<>(comment, HttpStatus.OK);
     }
+
     //update
     //update comment
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateComment(@PathVariable String id,@RequestBody Comment comment) throws Exception {
-        Comment updateComment = commentService.updateComment(id,comment);
-        simpMessagingTemplate.convertAndSend("/topic/posts/" + comment.getPostId()+ "/updatecomment", updateComment);
-        return new ResponseEntity<>(updateComment,HttpStatus.OK);
+    public ResponseEntity<?> updateComment(@PathVariable String id, @RequestBody Comment comment) throws Exception {
+        Comment updateComment = commentService.updateComment(id, comment);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + updateComment.getPostId() + "/updatecomment", updateComment);
+        return new ResponseEntity<>(updateComment, HttpStatus.OK);
     }
+
     //update comment like
     @PatchMapping("{id}/like")
-    public ResponseEntity<?> updateLikeComment(@PathVariable String id,HttpServletRequest request) throws Exception{
+    public ResponseEntity<?> updateLikeComment(@PathVariable String id, HttpServletRequest request) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        Comment comment1 = commentService.updatelike(id,userId);
+        Comment comment1 = commentService.updateLike(id, userId);
         simpMessagingTemplate.convertAndSend("/topic/likecomment", comment1);
 
-        return new ResponseEntity<>(comment1,HttpStatus.OK);
+        return new ResponseEntity<>(comment1, HttpStatus.OK);
     }
+
     //update comment like
     @PatchMapping("{id}/unlike")
-    public ResponseEntity<?> updateUnlikeComment(@PathVariable String id,HttpServletRequest request) throws Exception{
+    public ResponseEntity<?> updateUnlikeComment(@PathVariable String id, HttpServletRequest request) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        Comment comment1 = commentService.updateUnlike(id,userId);
+        Comment comment1 = commentService.updateUnlike(id, userId);
         simpMessagingTemplate.convertAndSend("/topic/unlikecomment", comment1);
-        return new ResponseEntity<>(comment1,HttpStatus.OK);
+        return new ResponseEntity<>(comment1, HttpStatus.OK);
     }
 
     //delete comment
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteComment(@PathVariable String id) throws Exception{
-       commentService.deleteComment(id);
-       simpMessagingTemplate.convertAndSend("/topic/deletecomment", id);
-       return new ResponseEntity<>(id,HttpStatus.OK);
+    public ResponseEntity<?> deleteComment(@PathVariable String id) throws Exception {
+        commentService.deleteComment(id);
+        simpMessagingTemplate.convertAndSend("/topic/deletecomment", id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 }
