@@ -87,28 +87,25 @@ public class BookmarkService {
             return bookmark.get();
         }
 
-        Bookmark bookmarkReturn = new Bookmark();
-        bookmarkReturn.setUserId(userId);
+//        Bookmark bookmarkReturn = new Bookmark();
+//        bookmarkReturn.setUserId(userId);
         if(bookmark.get().getPostIds().size() > 0 ) {
-            bookmarkReturn.setId(bookmark.get().getId());
+//            bookmarkReturn.setId(bookmark.get().getId());
             List<Post> posts = new ArrayList<>();
-            List<String> postIds = new ArrayList<>();
+//            List<String> postIds = new ArrayList<>();
             for (String postId : bookmark.get().getPostIds()) {
                 Optional<Post> post = postRepository.findById(postId);
-                if (post.isPresent() && post.get().getIsPublish()) {
-                    postIds.add(post.get().getId());
+                if (post.isPresent()) {
+//                    postIds.add(post.get().getId());
                     posts.add(post.get());
                 }
             }
-            //bookmark.get().setPosts(posts);
-            bookmarkReturn.setPosts(posts);
-            bookmarkReturn.setPostIds(postIds);
+            bookmark.get().setPosts(posts);
+//            bookmarkReturn.setPosts(posts);
+//            bookmarkReturn.setPostIds(postIds);
 
-        }else {
-            return bookmark.get();
         }
 
-//        return bookmark.get();
-        return bookmarkReturn;
+        return bookmark.get();
     }
 }
