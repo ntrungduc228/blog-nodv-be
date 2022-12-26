@@ -48,7 +48,7 @@ public class BookmarkService {
         return bookmark.get().getPostIds();
     }
 
-    public List<String> updatePostIdToBookmark(String userId, String postId) throws Exception {
+    public Post updatePostIdToBookmark(String userId, String postId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
         if(!bookmark.isPresent()){
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, postId)));
@@ -64,14 +64,20 @@ public class BookmarkService {
         if(postIdIsExists) {
             update.pull("postIds", postId);
         }else {
-            update.push("postIds", postId);
+//            update.push("postIds", postId);
+            // add to first array
+            update.push("postIds").atPosition(Update.Position.FIRST).value(postId);
+
         }
         mongoTemplate.updateFirst(query, update, Bookmark.class);
 
         bookmark = bookmarkRepository.findByUserId(userId);
+        Optional<Post> post = postRepository.findById(postId);
 
-        return bookmark.get().getPostIds();
+//        return bookmark.get().getPostIds();
+        return post.get();
     }
+
 
     public Bookmark findByUserId(String userId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
@@ -81,18 +87,28 @@ public class BookmarkService {
             return bookmark.get();
         }
 
+        Bookmark bookmarkReturn = new Bookmark();
+        bookmarkReturn.setUserId(userId);
         if(bookmark.get().getPostIds().size() > 0 ) {
+            bookmarkReturn.setId(bookmark.get().getId());
             List<Post> posts = new ArrayList<>();
+            List<String> postIds = new ArrayList<>();
             for (String postId : bookmark.get().getPostIds()) {
                 Optional<Post> post = postRepository.findById(postId);
-                if (post.isPresent()) {
+                if (post.isPresent() && post.get().getIsPublish()) {
+                    postIds.add(post.get().getId());
                     posts.add(post.get());
                 }
             }
-            bookmark.get().setPosts(posts);
+            //bookmark.get().setPosts(posts);
+            bookmarkReturn.setPosts(posts);
+            bookmarkReturn.setPostIds(postIds);
 
+        }else {
+            return bookmark.get();
         }
 
-        return bookmark.get();
+//        return bookmark.get();
+        return bookmarkReturn;
     }
 }

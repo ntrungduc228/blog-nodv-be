@@ -57,9 +57,10 @@ public class BookmarkController {
         System.out.println(postId);
         String token = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(token);
-        List<String> postIds = bookmarkService.updatePostIdToBookmark(userId, postId);
+//        List<String> postIds = bookmarkService.updatePostIdToBookmark(userId, postId);
+        Post post = bookmarkService.updatePostIdToBookmark(userId, postId);
 
-        return new ResponseEntity<>(postIds, HttpStatus.OK);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
 
