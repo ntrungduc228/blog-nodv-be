@@ -16,16 +16,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(value = "comments")
-public class Comment  extends AuditMetadata{
+public class Comment extends AuditMetadata {
     @Id
     private String id;
     private String userId;
     private String postId;
     private String content;
-    private List<String> userlikeids;
+    private List<String> userLikeIds;
     private String replyId;
     @DBRef
     private User user;
-    @DBRef
-    private Post post;
 }
