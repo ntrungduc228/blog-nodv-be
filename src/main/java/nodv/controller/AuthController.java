@@ -1,6 +1,5 @@
 package nodv.controller;
 
-import nodv.model.User;
 import nodv.payload.AuthResponse;
 import nodv.payload.LoginRequest;
 import nodv.repository.UserRepository;
