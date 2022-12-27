@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(value = "notifications")
-public class Notification extends AuditMetadata{
+public class Notification extends AuditMetadata {
     @Id
     private String id;
     private String link;
@@ -21,9 +21,9 @@ public class Notification extends AuditMetadata{
     private String receiverId;
     private String type;
     private Boolean isRead;
-     @DBRef
+    @DBRef
     private User receiver;
-     @DBRef
+    @DBRef
     private User sender;
 }
 

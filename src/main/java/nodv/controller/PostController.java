@@ -71,8 +71,14 @@ public class PostController {
 
     // get post by id
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPostById(@PathVariable String id) throws Exception {
-        Post post = postService.findById(id);
+    public ResponseEntity<?> getPostById(@PathVariable String id, HttpServletRequest request) {
+
+        String userId = null;
+        String token = tokenProvider.getJwtFromRequest(request);
+        if (token != null) {
+            userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        }
+        Post post = postService.findById(id, userId);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 

@@ -1,9 +1,6 @@
 package nodv.payload;
 
 import lombok.*;
-import nodv.model.Post;
-
-import java.util.List;
 
 @Data
 @Getter

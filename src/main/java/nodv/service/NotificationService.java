@@ -7,7 +7,6 @@ import nodv.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,14 +21,14 @@ public class NotificationService {
     @Autowired
     UserService userService;
 
-    public List<Notification> findByReceiverId(String receiverId, String isRead,int page, int limit) throws Exception {
+    public List<Notification> findByReceiverId(String receiverId, String isRead, int page, int limit) throws Exception {
         Pageable pageable = PageRequest.of(page, limit, DESC, "createdDate");
-        if(isRead == null)
-            return notificationRepository.findByReceiverId(receiverId,pageable);
-        return notificationRepository.findByReceiverIdAndIsRead(receiverId, Boolean.valueOf(isRead),pageable);
+        if (isRead == null)
+            return notificationRepository.findByReceiverId(receiverId, pageable);
+        return notificationRepository.findByReceiverIdAndIsRead(receiverId, Boolean.valueOf(isRead), pageable);
     }
 
-    public Notification createNotification(Notification notification,String userId){
+    public Notification createNotification(Notification notification, String userId) {
         User user = userService.findById(userId);
         String receiverId = notification.getReceiverId();
         User receiver = userService.findById(receiverId);
@@ -39,10 +38,11 @@ public class NotificationService {
         notification.setReceiverId(receiverId);
         notification.setReceiver(receiver);
 
-        return notificationRepository.save(notification);}
+        return notificationRepository.save(notification);
+    }
 
     public Notification updateNotification(String id) throws Exception {
-      Optional<Notification> updateNotification = notificationRepository.findById(id);
+        Optional<Notification> updateNotification = notificationRepository.findById(id);
         if (updateNotification.isEmpty()) {
             throw new NotFoundException("notification not found");
         }
