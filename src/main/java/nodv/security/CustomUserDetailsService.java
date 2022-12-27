@@ -1,6 +1,6 @@
 package nodv.security;
 
-import nodv.model.User;
+import nodv.controller.model.User;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

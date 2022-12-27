@@ -1,4 +1,4 @@
-package nodv.model;
+package nodv.controller.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,22 +8,20 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value = "notifications")
-public class Notification extends AuditMetadata{
+@Document(value = "blackList")
+
+public class BlackList {
     @Id
     private String id;
-    private String link;
-    private String senderId;
-    private String receiverId;
-    private String type;
-    private Boolean isRead;
-     @DBRef
-    private User receiver;
-     @DBRef
-    private User sender;
-}
+    private String userId;
+    private List<String> postIds;
 
+    @DBRef
+    private List<Post> posts;
+}

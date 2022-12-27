@@ -2,9 +2,9 @@ package nodv.service;
 
 import nodv.exception.ForbiddenException;
 import nodv.exception.NotFoundException;
-import nodv.model.Post;
-import nodv.model.Topic;
-import nodv.model.User;
+import nodv.controller.model.Post;
+import nodv.controller.model.Topic;
+import nodv.controller.model.User;
 import nodv.repository.CommentRepository;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
@@ -41,12 +41,16 @@ public class PostService {
     TopicService topicService;
 
     // mongodb-method
-    public Post findById(String id) {
-
+    public Post findById(String id, String userId) {
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) {
             throw new NotFoundException("Post is not found");
         }
+        Post postResponse = post.get();
+        if (!postResponse.getUser().getId().equals(userId) && !postResponse.getIsPublish()) {
+            throw new NotFoundException("Post is not found");
+        }
+
         return post.get();
     }
 
@@ -60,7 +64,7 @@ public class PostService {
     }
 
     public Post updatePost(String id, Post post, String userId) {
-        Post updatePost = findById(id);
+        Post updatePost = findById(id, userId);
         if (updatePost.getUser().getId().equals(userId)) {
             updatePost.setTitle(post.getTitle());
             updatePost.setContent(post.getContent());
@@ -74,7 +78,7 @@ public class PostService {
     }
 
     public void deletePost(String id, String userId) {
-        Post post = findById(id);
+        Post post = findById(id, userId);
         if (post.getUser().getId().equals(userId)) {
             postRepository.deleteById(id);
             commentRepository.deleteByPostId(id);
@@ -83,7 +87,7 @@ public class PostService {
     }
 
     public Post changePublish(String id, String userId, boolean isPublic) {
-        Post post = findById(id);
+        Post post = findById(id, userId);
         if (!post.getUser().getId().equals(userId))
             throw new ForbiddenException("You do not have permission to update this post");
         post.setIsPublish(isPublic);
@@ -106,8 +110,7 @@ public class PostService {
         }
 
         query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
-
-
+        query.fields().exclude("content");
         return PageableExecutionUtils.getPage(
                 mongoTemplate.find(query, Post.class), pageable,
                 () -> mongoTemplate.count(query.skip(0).limit(0), Post.class));
@@ -132,7 +135,7 @@ public class PostService {
         Update update = new Update();
         update.push("userLikeIds", userId);
         mongoTemplate.updateFirst(query, update, Post.class);
-        return findById(id);
+        return findById(id, userId);
     }
 
     public Post unlikePost(String id, String userId) {
@@ -142,7 +145,7 @@ public class PostService {
         Update update = new Update();
         update.pull("userLikeIds", userId);
         mongoTemplate.updateFirst(query, update, Post.class);
-        return findById(id);
+        return findById(id, userId);
     }
 
     public List<Document> findTopByLike(int limit) {

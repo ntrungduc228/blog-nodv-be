@@ -1,4 +1,4 @@
-package nodv.model;
+package nodv.controller.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;

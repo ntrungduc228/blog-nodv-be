@@ -1,20 +1,16 @@
 package nodv.service;
 
 import nodv.exception.NotFoundException;
-import nodv.model.Topic;
-import nodv.model.User;
+import nodv.controller.model.Topic;
+import nodv.controller.model.User;
 import nodv.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class TopicService {

@@ -1,4 +1,4 @@
-package nodv.model;
+package nodv.controller.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,9 +14,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value = "blackList")
-
-public class BlackList {
+@Document(value = "bookmarks")
+public class Bookmark {
     @Id
     private String id;
     private String userId;

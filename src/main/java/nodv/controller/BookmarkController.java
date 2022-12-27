@@ -1,7 +1,6 @@
 package nodv.controller;
 
-import nodv.model.Bookmark;
-import nodv.model.Post;
+import nodv.controller.model.Bookmark;
 import nodv.payload.BookmarkDTO;
 import nodv.security.TokenProvider;
 import nodv.service.BookmarkService;
@@ -11,9 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -36,7 +33,7 @@ public class BookmarkController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getListPostIds(HttpServletRequest request){
+    public ResponseEntity<?> getListPostIds(HttpServletRequest request) {
         String token = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(token);
         List<String> postIds = bookmarkService.getListPostIds(userId);
@@ -53,7 +50,7 @@ public class BookmarkController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<?> updatePostIdToBookmark(@PathVariable String postId, HttpServletRequest request)  throws Exception {
+    public ResponseEntity<?> updatePostIdToBookmark(@PathVariable String postId, HttpServletRequest request) throws Exception {
         System.out.println(postId);
         String token = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(token);

@@ -1,9 +1,9 @@
 package nodv.security.oauth2;
 
 import nodv.exception.OAuth2AuthenticationProcessingException;
-import nodv.model.AuthProvider;
-import nodv.model.Role;
-import nodv.model.User;
+import nodv.controller.model.AuthProvider;
+import nodv.controller.model.Role;
+import nodv.controller.model.User;
 import nodv.repository.UserRepository;
 import nodv.security.CustomUserDetailsService;
 import nodv.security.UserPrincipal;
@@ -17,7 +17,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {

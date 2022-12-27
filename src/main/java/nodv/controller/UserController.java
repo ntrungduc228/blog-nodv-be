@@ -1,17 +1,13 @@
 package nodv.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import nodv.model.Post;
-import nodv.model.Topic;
-import nodv.model.User;
+import nodv.controller.model.Topic;
+import nodv.controller.model.User;
 import nodv.security.TokenProvider;
 import nodv.service.TopicService;
 import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Random;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -62,13 +57,13 @@ public class UserController {
     }
 
     @GetMapping("/getUsersNotFollowed")
-    public  ResponseEntity<?> getUsersNotFollowed(HttpServletRequest request,    @RequestParam(value = "limit", defaultValue = "5", required = false) int limit){
+    public ResponseEntity<?> getUsersNotFollowed(HttpServletRequest request, @RequestParam(value = "limit", defaultValue = "5", required = false) int limit) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         System.out.println(userId);
 
-        List  <User> FollowingId = userService.getUsesNotFollowed(userId,   limit);
+        List<User> FollowingId = userService.getUsesNotFollowed(userId, limit);
 
-        return new ResponseEntity<>(FollowingId,HttpStatus.OK );
+        return new ResponseEntity<>(FollowingId, HttpStatus.OK);
     }
 
     @PatchMapping("/follow/{followId}")

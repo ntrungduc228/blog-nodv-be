@@ -1,6 +1,6 @@
 package nodv.repository;
 
-import nodv.model.BlackList;
+import nodv.controller.model.BlackList;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package nodv.controller;
 
-import nodv.model.Topic;
+import nodv.controller.model.Topic;
 import nodv.security.TokenProvider;
 import nodv.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;

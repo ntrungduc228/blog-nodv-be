@@ -1,7 +1,7 @@
 package nodv.service;
 
 import nodv.exception.NotFoundException;
-import nodv.model.User;
+import nodv.controller.model.User;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

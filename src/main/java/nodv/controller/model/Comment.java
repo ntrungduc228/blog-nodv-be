@@ -1,4 +1,5 @@
-package nodv.model;
+package nodv.controller.model;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,19 +10,20 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value = "bookmarks")
-public class Bookmark {
+@Document(value = "comments")
+public class Comment extends AuditMetadata {
     @Id
     private String id;
     private String userId;
-    private List<String> postIds;
-
+    private String postId;
+    private String content;
+    private List<String> userLikeIds;
+    private String replyId;
     @DBRef
-    private List<Post> posts;
+    private User user;
 }

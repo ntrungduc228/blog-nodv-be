@@ -1,7 +1,7 @@
 package nodv.service;
 
-import nodv.model.Bookmark;
-import nodv.model.Post;
+import nodv.controller.model.Bookmark;
+import nodv.controller.model.Post;
 import nodv.payload.BookmarkDTO;
 import nodv.repository.BookmarkRepository;
 import nodv.repository.PostRepository;
@@ -32,7 +32,7 @@ public class BookmarkService {
         bookmark.setUserId(bookmarkDTO.getUserId());
         List<String> listPostIds = new ArrayList<>();
         System.out.println(bookmarkDTO.getPostId().isEmpty());
-        if(!bookmarkDTO.getPostId().isEmpty()) {
+        if (!bookmarkDTO.getPostId().isEmpty()) {
             listPostIds.add(bookmarkDTO.getPostId());
         }
         bookmark.setPostIds(listPostIds);
@@ -41,7 +41,7 @@ public class BookmarkService {
 
     public List<String> getListPostIds(String userId) {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
-        if(!bookmark.isPresent()){
+        if (!bookmark.isPresent()) {
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, "")));
         }
 
@@ -50,20 +50,22 @@ public class BookmarkService {
 
     public List<String> updatePostIdToBookmark(String userId, String postId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
-        if(!bookmark.isPresent()){
+        if (!bookmark.isPresent()) {
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, postId)));
         }
 
         Boolean postIdIsExists = false;
-        if(bookmark.get().getPostIds().contains(postId)){ postIdIsExists = true;}
+        if (bookmark.get().getPostIds().contains(postId)) {
+            postIdIsExists = true;
+        }
 
         Query query = new Query();
         Criteria criteria = Criteria.where("userId").is(bookmark.get().getUserId());
         query.addCriteria(criteria);
         Update update = new Update();
-        if(postIdIsExists) {
+        if (postIdIsExists) {
             update.pull("postIds", postId);
-        }else {
+        } else {
             update.push("postIds", postId);
         }
         mongoTemplate.updateFirst(query, update, Bookmark.class);
@@ -75,13 +77,13 @@ public class BookmarkService {
 
     public Bookmark findByUserId(String userId) throws Exception {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserId(userId);
-        if(!bookmark.isPresent()){
+        if (!bookmark.isPresent()) {
             bookmark = Optional.ofNullable(this.createBookmark(new BookmarkDTO(userId, "")));
             bookmark.get().setPosts(new ArrayList<Post>());
             return bookmark.get();
         }
 
-        if(bookmark.get().getPostIds().size() > 0 ) {
+        if (bookmark.get().getPostIds().size() > 0) {
             List<Post> posts = new ArrayList<>();
             for (String postId : bookmark.get().getPostIds()) {
                 Optional<Post> post = postRepository.findById(postId);

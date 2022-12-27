@@ -1,10 +1,9 @@
 package nodv.service;
 
 import nodv.exception.NotFoundException;
-import nodv.model.Comment;
-import nodv.model.Notification;
-import nodv.model.Post;
-import nodv.model.User;
+import nodv.controller.model.Comment;
+import nodv.controller.model.Post;
+import nodv.controller.model.User;
 import nodv.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class CommentService {
     public Comment createComment(Comment comment, String userId) throws Exception {
         User user = userService.findById(userId);
         comment.setUser(user);
-        Post post = postService.findById(comment.getPostId());
+        Post post = postService.findById(comment.getPostId(), userId);
         List<String> userLikeIds = new ArrayList<>();
         comment.setUserLikeIds(userLikeIds);
         return commentRepository.save(comment);

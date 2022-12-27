@@ -1,8 +1,8 @@
 package nodv.repository;
 
-import nodv.model.Bookmark;
+import nodv.controller.model.Bookmark;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Update;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Optional;
 

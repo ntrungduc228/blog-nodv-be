@@ -1,4 +1,4 @@
-package nodv.model;
+package nodv.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

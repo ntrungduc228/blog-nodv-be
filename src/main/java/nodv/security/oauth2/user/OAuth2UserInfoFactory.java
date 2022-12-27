@@ -1,7 +1,7 @@
 package nodv.security.oauth2.user;
 
 import nodv.exception.OAuth2AuthenticationProcessingException;
-import nodv.model.AuthProvider;
+import nodv.controller.model.AuthProvider;
 
 import java.util.Map;
 

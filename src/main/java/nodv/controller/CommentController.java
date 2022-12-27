@@ -1,6 +1,6 @@
 package nodv.controller;
 
-import nodv.model.Comment;
+import nodv.controller.model.Comment;
 import nodv.security.TokenProvider;
 import nodv.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")

@@ -1,7 +1,6 @@
 package nodv.repository;
 
-import nodv.model.Topic;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import nodv.controller.model.Topic;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

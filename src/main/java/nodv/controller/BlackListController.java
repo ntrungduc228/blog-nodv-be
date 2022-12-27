@@ -1,7 +1,6 @@
 package nodv.controller;
 
-import nodv.model.BlackList;
-import nodv.model.Bookmark;
+import nodv.controller.model.BlackList;
 import nodv.payload.BlackListDTO;
 import nodv.security.TokenProvider;
 import nodv.service.BlackListService;
@@ -24,7 +23,7 @@ public class BlackListController {
     TokenProvider tokenProvider;
 
     @PostMapping("")
-    public ResponseEntity<?> createBlackList(HttpServletRequest request, @RequestBody String postId){
+    public ResponseEntity<?> createBlackList(HttpServletRequest request, @RequestBody String postId) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         BlackList blackList = blackListService.createBlackList(new BlackListDTO(userId, postId));
 
@@ -32,11 +31,11 @@ public class BlackListController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getListPostId(HttpServletRequest request) throws Exception{
+    public ResponseEntity<?> getListPostId(HttpServletRequest request) throws Exception {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         List<String> postIds = blackListService.getListPostIds(userId);
 
-        return  new ResponseEntity<>(postIds, HttpStatus.OK);
+        return new ResponseEntity<>(postIds, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -48,7 +47,7 @@ public class BlackListController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<?> updatePostIdToBlackList(@PathVariable String postId, HttpServletRequest request) throws Exception{
+    public ResponseEntity<?> updatePostIdToBlackList(@PathVariable String postId, HttpServletRequest request) throws Exception {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         List<String> postIds = blackListService.updatePostIdToBlackList(userId, postId);
 

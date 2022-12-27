@@ -1,5 +1,4 @@
-package nodv.model;
-
+package nodv.controller.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,21 +8,22 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value = "comments")
-public class Comment extends AuditMetadata {
+@Document(value = "notifications")
+public class Notification extends AuditMetadata {
     @Id
     private String id;
-    private String userId;
-    private String postId;
-    private String content;
-    private List<String> userLikeIds;
-    private String replyId;
+    private String link;
+    private String senderId;
+    private String receiverId;
+    private String type;
+    private Boolean isRead;
     @DBRef
-    private User user;
+    private User receiver;
+    @DBRef
+    private User sender;
 }
+
