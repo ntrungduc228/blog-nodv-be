@@ -25,6 +25,7 @@ public class CommentService {
     public Comment createComment(Comment comment, String userId) throws Exception {
         User user = userService.findById(userId);
         comment.setUser(user);
+        comment.setUserId(userId);
         Post post = postService.findById(comment.getPostId(), userId);
         List<String> userLikeIds = new ArrayList<>();
         comment.setUserLikeIds(userLikeIds);
