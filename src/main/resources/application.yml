@@ -19,6 +19,8 @@ nodv:
 server:
   port: '8081'
 spring:
+  main:
+    allow-circular-references: true
   data:
     mongodb:
       database: blog-nodv

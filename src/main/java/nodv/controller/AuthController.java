@@ -1,5 +1,7 @@
 package nodv.controller;
 
+import nodv.model.User;
+import nodv.payload.AuthRequestMobile;
 import nodv.payload.AuthResponse;
 import nodv.payload.LoginRequest;
 import nodv.repository.UserRepository;
@@ -44,10 +46,34 @@ public class AuthController {
                         loginRequest.getPassword()
                 )
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         String token = tokenProvider.createToken(authentication);
         return ResponseEntity.ok(new AuthResponse(token));
+    }
 
+    @PostMapping("/mobile/auth-by-mobile")
+    public ResponseEntity<?> authenticateByMobile(@RequestBody AuthRequestMobile authRequestMobile){
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authRequestMobile.getProvider(),
+                        authRequestMobile.getProviderId()
+                )
+        );
+
+        System.out.println(authentication.getPrincipal());
+        String token = "";
+        if(authentication.getPrincipal().toString().equalsIgnoreCase("newUserFromMobile")){
+            // Register new user here;
+
+            User newUser = userService.registerNewUser(authRequestMobile);
+            token = tokenProvider.createNewToken(newUser.getId());
+
+            return ResponseEntity.ok("waooo");
+        }else {
+            token = tokenProvider.createToken(authentication);
+        }
+
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @GetMapping("info")

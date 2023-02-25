@@ -1,5 +1,6 @@
 package nodv.security;
 
+import nodv.model.AuthProvider;
 import nodv.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,14 +16,27 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     private String id;
     private String email;
     private String password;
+    private AuthProvider provider;
+    private Boolean isNewUser;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
-    public UserPrincipal(String id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public static UserPrincipal notifyNewUser(){
+        UserPrincipal newUser = new UserPrincipal();
+        newUser.setIsNewUser(true);
+        return newUser;
+    }
+
+    public UserPrincipal() {this.isNewUser = false;}
+    public Boolean getIsNewUser() {return this.isNewUser;}
+
+    public UserPrincipal(String id, String email, String password, AuthProvider provider, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.provider = provider;
         this.authorities = authorities;
+        this.isNewUser = false;
     }
 
     public static UserPrincipal create(User user) {
@@ -33,6 +47,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
+                user.getProvider(),
                 authorities
         );
     }
@@ -50,6 +65,10 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public String getEmail() {
         return email;
     }
+
+    public AuthProvider getProvider() {return provider;};
+
+    public void setIsNewUser(boolean isNewUser){this.isNewUser = isNewUser;}
 
     @Override
     public String getPassword() {
@@ -99,4 +118,5 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public String getName() {
         return String.valueOf(id);
     }
+
 }
