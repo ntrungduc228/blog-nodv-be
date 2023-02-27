@@ -68,7 +68,6 @@ public class AuthController {
             User newUser = userService.registerNewUser(authRequestMobile);
             token = tokenProvider.createNewToken(newUser.getId());
 
-            return ResponseEntity.ok("waooo");
         }else {
             token = tokenProvider.createToken(authentication);
         }
