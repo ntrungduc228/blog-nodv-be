@@ -7,6 +7,8 @@ import nodv.security.oauth2.CustomOAuth2UserService;
 import nodv.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import nodv.security.oauth2.OAuth2AuthenticationFailureHandler;
 import nodv.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import nodv.security.provider.CustomAuthenticationProvider;
+import nodv.security.provider.MobileAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +42,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomOAuth2UserService customOAuth2UserService;
 
     @Autowired
+    private CustomAuthenticationProvider customAuthenticationProvider;
+
+    @Autowired
+    private MobileAuthenticationProvider mobileAuthenticationProvider;
+
+    @Autowired
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Autowired
@@ -57,11 +66,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HttpCookieOAuth2AuthorizationRequestRepository();
     }
 
+//    @Override
+//    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+//        authenticationManagerBuilder
+//                .userDetailsService(customUserDetailsService)
+//                .passwordEncoder(passwordEncoder());
+//    }
+
+//     adding our custom authentication provider
+//     authentication manager will call this customer provider's
+//     authenticate method from now on.
     @Override
-    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder
-                .userDetailsService(customUserDetailsService)
-                .passwordEncoder(passwordEncoder());
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(customAuthenticationProvider)
+                .authenticationProvider(mobileAuthenticationProvider);
+    }
+
+    @Bean
+    static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+        return new GrantedAuthorityDefaults("");
     }
 
     @Bean

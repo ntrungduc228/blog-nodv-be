@@ -1,7 +1,10 @@
 package nodv.service;
 
 import nodv.exception.NotFoundException;
+import nodv.model.AuthProvider;
+import nodv.model.Role;
 import nodv.model.User;
+import nodv.payload.AuthRequestMobile;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,17 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     MongoTemplate mongoTemplate;
+
+    public User registerNewUser(AuthRequestMobile authRequestMobile){
+        User user = new User();
+        user.setProvider(AuthProvider.valueOf(authRequestMobile.getProvider()));
+        user.setProviderId(authRequestMobile.getProviderId());
+        user.setUsername(authRequestMobile.getUsername());
+        user.setEmail(authRequestMobile.getEmail());
+        user.setAvatar(authRequestMobile.getAvatar());
+        user.setRole(Role.USER);
+        return userRepository.save(user);
+    }
 
     public User findByEmail(String email) {
 

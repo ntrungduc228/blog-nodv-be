@@ -16,6 +16,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     List<User> findByFollowerIdContaining(String userId);
 
     Optional<User> findByEmail(String email);
+    Optional<User> findByProviderId(String providerId);
 
     @Query(sort = "{ username : 1 }", fields = "{role : 0}")
     Page<User> findByUsernameLikeIgnoreCase(String name, Pageable pageable);
