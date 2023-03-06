@@ -151,8 +151,8 @@ public class PostService {
     public List<Document> findTopByLike(int limit) {
         LookupOperation lookupOperation = Aggregation.lookup("users", "user.$id", "_id", "user");
         ProjectionOperation projectionOperation = Aggregation.project()
-                .andInclude("title", "timeRead", "id", "createdDate")
-                .andExclude("_id")
+                .and(ConvertOperators.ToString.toString("$_id")).as("id")
+                .andInclude("title", "timeRead", "createdDate")
                 .and(ArrayOperators.Size.lengthOfArray(ConditionalOperators.ifNull("userLikeIds")
                         .then(Collections.emptyList())))
                 .as("likeCount")
