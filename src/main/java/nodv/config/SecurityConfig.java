@@ -73,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .passwordEncoder(passwordEncoder());
 //    }
 
-//     adding our custom authentication provider
+    //     adding our custom authentication provider
 //     authentication manager will call this customer provider's
 //     authenticate method from now on.
     @Override
