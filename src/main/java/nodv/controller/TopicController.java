@@ -45,4 +45,11 @@ public class TopicController {
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 
+    @GetMapping("/{slug}/detail")
+    ResponseEntity<?> getTopicDetail(@PathVariable String slug) {
+        Topic topics = topicService.getDetail(slug);
+        return new ResponseEntity<>(topics, HttpStatus.OK);
+    }
+
+
 }

@@ -21,7 +21,6 @@ public class TopicService {
     @Autowired
     UserService userService;
 
-
     public List<Topic> checkAndCreateListTopic(List<Topic> topics) {
         System.out.println(topics);
         List<Topic> topicsResult = new ArrayList<>();
@@ -67,5 +66,10 @@ public class TopicService {
     public List<Topic> findRandom() {
         List<String> topics = new ArrayList<>();
         return topicRepository.findRandom(topics);
+    }
+
+    public Topic getDetail(String topicSlug) {
+        Topic topic = findBySlug(topicSlug);
+        return topic;
     }
 }
