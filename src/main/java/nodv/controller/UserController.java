@@ -117,4 +117,11 @@ public class UserController {
         List<User> userFollower = userService.getUsersFollowing(id);
         return new ResponseEntity<>(userFollower, HttpStatus.OK);
     }
+
+    @PatchMapping("/topics/{topicId}")
+    public ResponseEntity<?> addTopics(HttpServletRequest request, @PathVariable String topicId) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User userUpdate = userService.followTopics(topicId, userId);
+        return new ResponseEntity<>(userUpdate, HttpStatus.OK);
+    }
 }

@@ -27,7 +27,7 @@ public class UserService {
     @Autowired
     MongoTemplate mongoTemplate;
 
-    public User registerNewUser(AuthRequestMobile authRequestMobile){
+    public User registerNewUser(AuthRequestMobile authRequestMobile) {
         User user = new User();
         user.setProvider(AuthProvider.valueOf(authRequestMobile.getProvider()));
         user.setProviderId(authRequestMobile.getProviderId());
@@ -150,7 +150,7 @@ public class UserService {
             user.setNotificationsCount(countNotification);
         } else user.setNotificationsCount(0);
 
-      //  System.out.println("count notification user service" + user.getNotificationsCount());
+        //  System.out.println("count notification user service" + user.getNotificationsCount());
 
         return userRepository.save(user);
     }
@@ -165,6 +165,28 @@ public class UserService {
     public List<User> getUsersFollowing(String userId) {
         return userRepository.findByFollowerIdContaining(userId);
 
+    }
+
+    public User followTopics(String topicId, String userId) {
+        User userUpdate = findById(userId);
+//        userUpdate.setTopics(user.getTopics());
+        List<String> newListTopic = new ArrayList<String>();
+        if (userUpdate.getTopics() != null) {
+            newListTopic = userUpdate.getTopics();
+            if (newListTopic.contains(topicId)) {
+                List<String> itemsToRemove = new ArrayList<>();
+                itemsToRemove.add(topicId);
+                newListTopic.removeAll(itemsToRemove);
+            } else {
+//                newListTopic = userUpdate.getTopics();
+                newListTopic.add(topicId);
+            }
+        } else {
+            newListTopic.add(topicId);
+        }
+
+        userUpdate.setTopics(newListTopic);
+        return userRepository.save(userUpdate);
     }
 }
 
