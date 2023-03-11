@@ -5,6 +5,7 @@ import nodv.exception.NotFoundException;
 import nodv.model.Post;
 import nodv.model.Topic;
 import nodv.model.User;
+import nodv.projection.PostPreviewProjection;
 import nodv.repository.CommentRepository;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
@@ -108,7 +109,6 @@ public class PostService {
             Topic topic = topicService.findBySlug(topicSlug);
             criteria.add(Criteria.where("topics.id").is(topic.getId()));
         }
-
         query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
         query.fields().exclude("content");
         return PageableExecutionUtils.getPage(
@@ -117,12 +117,19 @@ public class PostService {
 
     }
 
+    public Page<PostPreviewProjection> findFollowing(int page, int limit, String userId) {
+        User user = userService.findById(userId);
+        List<String> followingIds = user.getFollowingId();
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
+        return postRepository.findByUserIdInAndIsPublishTrue(followingIds, pageable);
+    }
 
-    public List<Post> findOwnedPost(String userId, String isPublish) {
+    public Page<PostPreviewProjection> findOwnPosts(int page, int limit, String userId, Boolean isPublish) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         if (isPublish == null) {
-            return postRepository.findByUserId(userId);
+            return postRepository.findByUserId(userId, pageable);
         } else {
-            return postRepository.findByUserIdAndIsPublish(userId, Boolean.valueOf(isPublish));
+            return postRepository.findByUserIdAndIsPublish(userId, isPublish, pageable);
         }
 
     }

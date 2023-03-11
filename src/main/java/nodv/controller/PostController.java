@@ -2,6 +2,7 @@ package nodv.controller;
 
 import nodv.model.Comment;
 import nodv.model.Post;
+import nodv.projection.PostPreviewProjection;
 import nodv.security.TokenProvider;
 import nodv.service.PostService;
 import nodv.service.CommentService;
@@ -39,8 +40,23 @@ public class PostController {
             @RequestParam(value = "title", required = false) String title
     ) {
         Page<Post> posts = postService.findAll(page, limit, title, topic);
-        return new ResponseEntity<>(posts.get(), HttpStatus.OK);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
+
+    @GetMapping("/following")
+    public ResponseEntity<?> getPostsByFollowing(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            @RequestParam(value = "topic", required = false) String topic,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "isFollowing", required = false) Boolean isFollowing,
+            HttpServletRequest request
+    ) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Page<PostPreviewProjection> posts = postService.findFollowing(page, limit, userId);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
 
     @GetMapping("/trending")
     public ResponseEntity<?> getPostsTrending(
@@ -50,8 +66,11 @@ public class PostController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<?> getPostsByUser(@PathVariable String id) {
-        List<Post> posts = postService.findOwnedPost(id, "true");
+    public ResponseEntity<?> getPostsByUser(
+            @PathVariable String id, @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit) {
+//        List<Post> posts = postService.findOwnedPost(id, "true");
+        Page<PostPreviewProjection> posts = postService.findOwnPosts(page, limit, id, true);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
@@ -59,11 +78,14 @@ public class PostController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getOwnedPosts(
-            @RequestParam(value = "isPublish", required = false) String isPublish,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            @RequestParam(value = "isPublish", required = false) Boolean isPublish,
             HttpServletRequest request
     ) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        List<Post> posts = postService.findOwnedPost(userId, isPublish);
+//        List<Post> posts = postService.findOwnedPost(userId, isPublish);
+        Page<PostPreviewProjection> posts = postService.findOwnPosts(page, limit, userId, isPublish);
 
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }

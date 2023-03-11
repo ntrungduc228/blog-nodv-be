@@ -1,6 +1,7 @@
 package nodv.repository;
 
 import nodv.model.Post;
+import nodv.projection.PostPreviewProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,20 +11,24 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends MongoRepository<Post, String> {
+    Page<PostPreviewProjection> findByTopicsIdAndIsPublishTrue(String topicId, Pageable pageable);
+
     Optional<Post> findByIdAndUserId(String id, String userId);
 
     void deleteByIdAndUserId(String id, String userId);
 
-    Page<Post> findByIsPublishIsTrue(Pageable pageable);
+    Page<PostPreviewProjection> findByUserIdInAndIsPublishTrue(List<String> followingIds, Pageable pageable);
 
-    @Query(value = "{'user.id': ?0}", fields = "{ 'content' : 0}")
-    List<Post> findByUserId(String userId);
+    Page<Post> findByIsPublishTrue(Pageable pageable);
 
-    @Query(value = "{'user.id': ?0}", fields = "{ 'content' : 0}", sort = "{'createdDate': -1}")
-    List<Post> findByUserIdAndIsPublish(String userId, Boolean isPublish);
+    Page<PostPreviewProjection> findByUserId(String userId, Pageable pageable);
+
+    Page<PostPreviewProjection> findByUserIdAndIsPublish(String userId, Boolean isPublish, Pageable pageable);
 
     @Query(fields = "{'topics.slug': ?0}")
     Page<Post> findByTopicsSlug(String topic, Pageable pageable);
+
+    Page<PostPreviewProjection> findByTopicsId(String topicId, Pageable pageable);
 }
 
 //db -> repository -> service -> controller
