@@ -12,6 +12,9 @@ import java.util.Optional;
 public interface PostRepository extends MongoRepository<Post, String> {
     Optional<Post> findByIdAndUserId(String id, String userId);
 
+    @Query(value="{ '_id' : ?0 }", fields="{ 'content' : 0 }")
+    Optional<Post> findByIdExcludingContent(String id);
+
     void deleteByIdAndUserId(String id, String userId);
 
     Page<Post> findByIsPublishIsTrue(Pageable pageable);
