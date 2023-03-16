@@ -72,7 +72,7 @@ public class BookmarkService {
         mongoTemplate.updateFirst(query, update, Bookmark.class);
 
         bookmark = bookmarkRepository.findByUserId(userId);
-        Optional<Post> post = postRepository.findByIdExcludingContent(postId);
+        Optional<Post> post = postRepository.findByIdExcludingContentAndUser(postId);
 
 //        return bookmark.get().getPostIds();
         return post.get();
@@ -94,7 +94,7 @@ public class BookmarkService {
             List<Post> posts = new ArrayList<>();
 //            List<String> postIds = new ArrayList<>();
             for (String postId : bookmark.get().getPostIds()) {
-                Optional<Post> post = postRepository.findByIdExcludingContent(postId);
+                Optional<Post> post = postRepository.findByIdExcludingContentAndUser(postId);
                 if (post.isPresent()) {
 //                    postIds.add(post.get().getId());
                     posts.add(post.get());
