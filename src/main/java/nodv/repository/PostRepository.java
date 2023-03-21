@@ -18,6 +18,9 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     Optional<Post> findByIdAndUserId(String id, String userId);
 
+    @Query(value="{ '_id' : ?0 }", fields="{ 'content' : 0, 'user': 0 }")
+    Optional<Post> findByIdExcludingContentAndUser(String id);
+
     void deleteByIdAndUserId(String id, String userId);
 
     Page<PostPreviewProjection> findByUserIdInAndIsPublishTrue(List<String> followingIds, Pageable pageable);
