@@ -54,5 +54,13 @@ public class BlackListController {
         return new ResponseEntity<>(postIds, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> removePostIdFromBlackList(@PathVariable String postId, HttpServletRequest request) throws Exception {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List<String> postIds = blackListService.removePostIdFromBlackList(userId, postId);
+
+        return new ResponseEntity<>(postIds, HttpStatus.OK);
+    }
+
 }
 

@@ -123,6 +123,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/posts/user/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/posts/{id}/comments").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/topics/search").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/topics/{slug}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/topics/random").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/**").permitAll()
                 .antMatchers("/",

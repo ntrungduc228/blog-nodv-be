@@ -37,10 +37,19 @@ public class PostController {
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
             @RequestParam(value = "topic", required = false) String topic,
-            @RequestParam(value = "title", required = false) String title
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "sort", required = false) String sortBy,
+            @RequestParam(value = "direction", required = false) String sortDirection,
+            @RequestParam(value = "user", required = false) String authorId,
+            HttpServletRequest request
     ) {
-        Page<Post> posts = postService.findAll(page, limit, title, topic);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+        String token = tokenProvider.getJwtFromRequest(request);
+        String userId = null;
+        if (token != null) {
+            userId = tokenProvider.getUserIdFromToken(token);
+        }
+        Page<Document> postsPage = postService.findByFilter(page, limit, topic, title, authorId, sortBy, sortDirection, userId);
+        return new ResponseEntity<>(postsPage, HttpStatus.OK);
     }
 
     @GetMapping("/following")

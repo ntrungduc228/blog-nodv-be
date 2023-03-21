@@ -3,9 +3,14 @@ package nodv.controller;
 import nodv.model.Bookmark;
 import nodv.model.Post;
 import nodv.payload.BookmarkDTO;
+import nodv.projection.PostPreviewProjection;
+import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
 import nodv.service.BookmarkService;
+import nodv.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +26,8 @@ public class BookmarkController {
     BookmarkService bookmarkService;
 
     @Autowired
+    PostService postService;
+    @Autowired
     TokenProvider tokenProvider;
 
     // create bookmark
@@ -31,6 +38,17 @@ public class BookmarkController {
         Bookmark bookmark = bookmarkService.createBookmark(new BookmarkDTO(userId, postId));
 
         return new ResponseEntity<>(bookmark, HttpStatus.OK);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getBookmark(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            HttpServletRequest request) {
+        String token = tokenProvider.getJwtFromRequest(request);
+        String userId = tokenProvider.getUserIdFromToken(token);
+        Page<PostPreviewProjection> postsPage = postService.findByUserBookmark(page, limit, userId);
+        return new ResponseEntity<>(postsPage, HttpStatus.OK);
     }
 
     @GetMapping("/list")
@@ -46,7 +64,6 @@ public class BookmarkController {
         String token = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(token);
         Bookmark bookmark = bookmarkService.findByUserId(userId);
-
         return new ResponseEntity<>(bookmark, HttpStatus.OK);
     }
 

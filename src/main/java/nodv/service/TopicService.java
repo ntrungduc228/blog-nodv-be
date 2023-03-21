@@ -3,9 +3,12 @@ package nodv.service;
 import nodv.exception.NotFoundException;
 import nodv.model.Topic;
 import nodv.model.User;
+import nodv.payload.TopicDTO;
+import nodv.repository.PostRepository;
 import nodv.repository.TopicRepository;
+import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,9 +20,13 @@ public class TopicService {
     @Autowired
     TopicRepository topicRepository;
     @Autowired
-    MongoTemplate mongoTemplate;
+    UserRepository userRepository;
+
     @Autowired
     UserService userService;
+
+    @Autowired
+    PostRepository postRepository;
 
     public List<Topic> checkAndCreateListTopic(List<Topic> topics) {
         System.out.println(topics);
@@ -68,8 +75,11 @@ public class TopicService {
         return topicRepository.findRandom(topics);
     }
 
-    public Topic getDetail(String topicSlug) {
+    public TopicDTO getDetail(String topicSlug) {
         Topic topic = findBySlug(topicSlug);
-        return topic;
+        String topicId = topic.getId();
+        Long postCounts = postRepository.countByTopicsId(topicId);
+        Long followerCounts = userRepository.countByTopicsContaining(topicId);
+        return new TopicDTO(topicId, topic.getName(), topic.getSlug(), postCounts, followerCounts);
     }
 }

@@ -3,6 +3,8 @@ package nodv.controller;
 import lombok.extern.slf4j.Slf4j;
 import nodv.model.Topic;
 import nodv.model.User;
+import nodv.projection.UserProjection;
+import nodv.repository.UserRepository;
 import nodv.security.TokenProvider;
 import nodv.service.TopicService;
 import nodv.service.UserService;
@@ -52,8 +54,8 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "limit", defaultValue = "5", required = false) int limit
     ) {
-        Page<User> users = userService.search(name, page, limit);
-        return new ResponseEntity<>(users.get(), HttpStatus.OK);
+        Page<UserProjection> users = userService.search(name, page, limit);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/getUsersNotFollowed")
@@ -103,20 +105,25 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    //get user follower
-    @GetMapping("/{id}/follower")
-    public ResponseEntity<?> getAllUserFollower(HttpServletRequest request, @PathVariable String id) {
-        List<User> userFollower = userService.getUsersFollower(id);
-
-        return new ResponseEntity<>(userFollower, HttpStatus.OK);
+    //    get user follower
+    @GetMapping("/{id}/followers")
+    public ResponseEntity<?> getFollowers(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "5", required = false) int limit,
+            @PathVariable String id) {
+        Page<UserProjection> followers = userService.getFollowers(page, limit, id);
+        return new ResponseEntity<>(followers, HttpStatus.OK);
     }
 
-    //get user following
     @GetMapping("/{id}/following")
-    public ResponseEntity<?> getAllUserFollowing(HttpServletRequest request, @PathVariable String id) {
-        List<User> userFollower = userService.getUsersFollowing(id);
-        return new ResponseEntity<>(userFollower, HttpStatus.OK);
+    public ResponseEntity<?> getAllUserFollowing(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "5", required = false) int limit,
+            @PathVariable String id) {
+        Page<UserProjection> follower = userService.getFollowing(page, limit, id);
+        return new ResponseEntity<>(follower, HttpStatus.OK);
     }
+
 
     @PatchMapping("/topics/{topicId}")
     public ResponseEntity<?> addTopics(HttpServletRequest request, @PathVariable String topicId) {

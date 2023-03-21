@@ -5,11 +5,13 @@ import nodv.model.AuthProvider;
 import nodv.model.Role;
 import nodv.model.User;
 import nodv.payload.AuthRequestMobile;
+import nodv.projection.UserProjection;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -58,15 +60,16 @@ public class UserService {
 
     public User updateBasicProfile(User user, String id) {
         User userUpdate = findById(id);
+        if (!user.getUsername().isEmpty()) {
+            userUpdate.setUsername(user.getUsername());
+        }
         userUpdate.setAvatar(user.getAvatar());
-        userUpdate.setUsername(user.getUsername());
         userUpdate.setBio(user.getBio());
         userUpdate.setGender(user.getGender());
         return userRepository.save(userUpdate);
     }
 
-    public Page<User> search(String name, int page, int limit) {
-
+    public Page<UserProjection> search(String name, int page, int limit) {
         Pageable pageable = PageRequest.of(page, limit);
         return userRepository.findByUsernameLikeIgnoreCase(name, pageable);
     }
@@ -156,13 +159,25 @@ public class UserService {
     }
 
     //get user Follower
-    public List<User> getUsersFollower(String userId) {
+    public List<UserProjection> getUsersFollower(String userId) {
         return userRepository.findByFollowingIdContaining(userId);
 
     }
 
+    public Page<UserProjection> getFollowers(int page, int limit, String userId) {
+        User user = findById(userId);
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("username").descending());
+        return userRepository.findByIdIn(user.getFollowerId(), pageable);
+    }
+
+    public Page<UserProjection> getFollowing(int page, int limit, String userId) {
+        User user = findById(userId);
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("username").descending());
+        return userRepository.findByIdIn(user.getFollowingId(), pageable);
+    }
+
     //get user Following
-    public List<User> getUsersFollowing(String userId) {
+    public List<UserProjection> getUsersFollowing(String userId) {
         return userRepository.findByFollowerIdContaining(userId);
 
     }

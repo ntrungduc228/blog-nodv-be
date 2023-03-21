@@ -1,5 +1,6 @@
 package nodv.service;
 
+import nodv.exception.NotFoundException;
 import nodv.model.BlackList;
 import nodv.model.Post;
 import nodv.payload.BlackListDTO;
@@ -103,5 +104,25 @@ public class BlackListService {
 
         return blackList.get().getPostIds();
 
+    }
+
+    public List<String> removePostIdFromBlackList(String userId, String postId) throws Exception {
+        Optional<BlackList> blackList = blackListRepository.findByUserId(userId);
+
+        if (blackList.isEmpty()) {
+            throw new NotFoundException("User not have blacklist");
+        }
+
+        if (!blackList.get().getPostIds().contains(postId)) return blackList.get().getPostIds();
+        Query query = new Query();
+        Criteria criteria = Criteria.where("userId").is(blackList.get().getUserId());
+        query.addCriteria(criteria);
+        Update update = new Update();
+        update.pull("postIds", postId);
+
+        mongoTemplate.updateFirst(query, update, BlackList.class);
+
+        blackList = blackListRepository.findByUserId(userId);
+        return blackList.get().getPostIds();
     }
 }

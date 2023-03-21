@@ -20,7 +20,6 @@ public class Post extends AuditMetadata {
     private String content;
     private String thumbnail;
     private String userId;
-    private Integer likes;
     private Integer timeRead;
     private Boolean isPublish;
     private List<String> userLikeIds;

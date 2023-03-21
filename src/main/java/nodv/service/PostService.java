@@ -2,19 +2,18 @@ package nodv.service;
 
 import nodv.exception.ForbiddenException;
 import nodv.exception.NotFoundException;
+import nodv.model.BlackList;
 import nodv.model.Post;
 import nodv.model.Topic;
 import nodv.model.User;
 import nodv.projection.PostPreviewProjection;
+import nodv.repository.BlackListRepository;
 import nodv.repository.CommentRepository;
 import nodv.repository.PostRepository;
 import nodv.security.TokenProvider;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -40,6 +39,12 @@ public class PostService {
     MongoTemplate mongoTemplate;
     @Autowired
     TopicService topicService;
+
+    @Autowired
+    BookmarkService bookmarkService;
+
+    @Autowired
+    BlackListRepository blackListRepository;
 
     // mongodb-method
     public Post findById(String id, String userId) {
@@ -95,7 +100,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Page<Post> findAll(int page, int limit, String title, String topicSlug) {
+    public Slice<Post> findAll(int page, int limit, String title, String topicSlug) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         Query query = new Query().with(pageable);
         List<Criteria> criteria = new ArrayList<>();
@@ -108,6 +113,7 @@ public class PostService {
         if (topicSlug != null && !topicSlug.equals("all") && !topicSlug.isBlank()) {
             Topic topic = topicService.findBySlug(topicSlug);
             criteria.add(Criteria.where("topics.id").is(topic.getId()));
+
         }
         query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
         query.fields().exclude("content");
@@ -115,6 +121,76 @@ public class PostService {
                 mongoTemplate.find(query, Post.class), pageable,
                 () -> mongoTemplate.count(query.skip(0).limit(0), Post.class));
 
+    }
+
+
+    public Page<Document> findByFilter(int page, int pageSize, String topicSlug, String title, String authorId, String sortBy, String sortDirection, String userId) {
+        Criteria criteria = new Criteria();
+        if (topicSlug != null && !topicSlug.isEmpty()) {
+            Topic topic = topicService.findBySlug(topicSlug);
+            criteria.and("topics.id").is(topic.getId());
+        }
+        if (title != null && !title.isEmpty()) {
+            criteria.and("title").regex(title, "i");
+        }
+
+        if (authorId != null && !authorId.isEmpty()) {
+            criteria.and("user.id").is(authorId);
+        }
+
+        if (userId != null) {
+            Optional<BlackList> blackList = blackListRepository.findByUserId(userId);
+            blackList.ifPresent(list -> criteria.and("id").nin(list.getPostIds()));
+        }
+        criteria.and("isPublish").is(true);
+        MatchOperation matchOperation = Aggregation.match(criteria);
+        LookupOperation userLookup = LookupOperation.newLookup()
+                .from("users")
+                .localField("user.$id")
+                .foreignField("_id")
+                .as("user");
+        UnwindOperation userUnwind = Aggregation.unwind("user");
+        ProjectionOperation projectionOperation = Aggregation.project()
+                .and(ConvertOperators.ToString.toString("$_id")).as("id")
+                .andInclude("title", "timeRead", "createdDate", "subtitle", "isPublish", "thumbnail")
+                .and("user._id").as("user._id")
+                .and("user.username").as("user.username")
+                .and("user.avatar").as("user.avatar")
+                .and("user._id").as("userId")
+                .and("user.email").as("user.email")
+                .and("topics").as("topics")
+                .and(ConvertOperators.ToString.toString("$userId")).as("user.id")
+                .and(ArrayOperators.Size.lengthOfArray(ConditionalOperators.ifNull("userLikeIds")
+                        .then(Collections.emptyList())))
+                .as("likeCount");
+        SortOperation sortOperation;
+        Sort.Direction direction = Sort.Direction.DESC;
+        if ("ASC".equalsIgnoreCase(sortDirection)) {
+            direction = Sort.Direction.ASC;
+        }
+        if ("trending".equalsIgnoreCase(sortBy)) {
+            sortOperation = Aggregation.sort(direction, "likeCount");
+        } else {
+            sortOperation = Aggregation.sort(direction, "createdDate");
+        }
+
+        SkipOperation skipOperation = Aggregation.skip(page * pageSize);
+        LimitOperation limitOperation = Aggregation.limit(pageSize);
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchOperation,
+                userLookup,
+                userUnwind,
+                Aggregation.lookup("topics", "topics.$id", "_id", "topics"),
+                projectionOperation,
+                sortOperation,
+                skipOperation,
+                limitOperation
+        );
+
+        AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, Post.class, Document.class);
+        List<Document> documents = aggregationResults.getMappedResults();
+        long totalCount = mongoTemplate.count(Query.query(criteria), Post.class);
+        return new PageImpl<>(documents, PageRequest.of(page, pageSize), totalCount);
     }
 
     public Page<PostPreviewProjection> findFollowing(int page, int limit, String userId) {
@@ -173,5 +249,11 @@ public class PostService {
                 limitOperation
         );
         return mongoTemplate.aggregate(aggregation, Post.class, Document.class).getMappedResults();
+    }
+
+    public Page<PostPreviewProjection> findByUserBookmark(int page, int limit, String userId) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
+        List<String> ids = bookmarkService.getListPostIds(userId);
+        return postRepository.findByIdIn(ids, pageable);
     }
 }

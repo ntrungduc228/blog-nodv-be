@@ -15,9 +15,11 @@ public interface PostPreviewProjection {
 
     LocalDateTime getCreatedDate();
 
-    String getTimeRead();
+    Integer getTimeRead();
 
     String getThumbnail();
+
+    Boolean getIsPublish();
 
     UserProjection getUser();
 
