@@ -22,6 +22,10 @@ public class MobileAuthenticationProvider implements AuthenticationProvider {
         String provider = authentication.getName();
         String providerId = String.valueOf(authentication.getCredentials());
         UserPrincipal userDetails = (UserPrincipal) customUserDetailsServiceMobile.loadUserByUsername(providerId);
+        userDetails.getAuthorities().forEach((item) -> {
+            System.out.println("item " + item);
+        });
+
         // If user is not null, then we check if password matches
         if (userDetails != null){
             if(userDetails.getIsNewUser()){

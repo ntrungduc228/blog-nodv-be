@@ -2,6 +2,7 @@ package nodv.security;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import io.jsonwebtoken.*;
+import net.minidev.json.JSONObject;
 import nodv.config.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,10 @@ public class TokenProvider {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getTokenExpirationMsec());
+//        JSONObject json = new JSONObject();
+//        json.put("id", userPrincipal.getId());
+//        json.put("user", "duc");
+//        System.out.println(json.get("user"));
         return Jwts.builder()
                 .setSubject(userPrincipal.getId())
                 .setIssuedAt(new Date())

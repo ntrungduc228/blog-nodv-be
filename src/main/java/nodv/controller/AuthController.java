@@ -79,6 +79,6 @@ public class AuthController {
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(token);
-        return new ResponseEntity<>(userService.findById(userId), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserInfo(userId), HttpStatus.OK);
     }
 }

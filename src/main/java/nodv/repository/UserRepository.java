@@ -1,5 +1,6 @@
 package nodv.repository;
 
+import nodv.model.Post;
 import nodv.model.User;
 import nodv.projection.UserProjection;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,9 @@ public interface UserRepository extends MongoRepository<User, String> {
     List<UserProjection> findByFollowingIdContaining(String userId);
 
     Page<UserProjection> findByIdIn(List<String> ids, Pageable pageable);
+
+    @Query(value="{ '_id' : ?0 }", fields="{ 'role' : 0, 'provider': 0, 'providerId': 0 }")
+    Optional<User> findByIdExcludingRoleAndProviderAndProviderId(String id);
 
     List<UserProjection> findByFollowerIdContaining(String userId);
 
