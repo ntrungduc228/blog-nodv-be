@@ -1,5 +1,6 @@
 package nodv.config;
 
+import nodv.model.Role;
 import nodv.security.CustomUserDetailsService;
 import nodv.security.RestAuthenticationEntryPoint;
 import nodv.security.TokenAuthenticationFilter;
@@ -137,6 +138,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.css",
                         "/**/*.js")
                 .permitAll()
+                .antMatchers("/api/admin/**").hasRole(String.valueOf(Role.ADMIN))
                 .antMatchers("/api/auth/**", "/oauth2/**", "/api/ws/**")
                 .permitAll()
                 .anyRequest()

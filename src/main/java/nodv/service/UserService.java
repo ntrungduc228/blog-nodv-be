@@ -50,6 +50,14 @@ public class UserService {
 
     }
 
+    public User getUserInfo(String id) {
+        Optional<User> user = userRepository.findByIdExcludingRoleAndProviderAndProviderId(id);
+        if (user.isEmpty())
+            throw new NotFoundException("User not found");
+
+        return user.get();
+    }
+
     public User findById(String id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty())
