@@ -37,4 +37,6 @@ public class User {
 
     private List<String> followingId;
     private List<String> followerId;
+    private Integer numOfWarning;
+    private Integer numOfLocked;
 }
