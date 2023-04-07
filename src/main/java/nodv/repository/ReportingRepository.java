@@ -1,7 +1,7 @@
 package nodv.repository;
 
-import nodv.model.User;
+import nodv.model.Reporting;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface ReportingRepository extends MongoRepository<User, String> {
+public interface ReportingRepository extends MongoRepository<Reporting, String> {
 }
