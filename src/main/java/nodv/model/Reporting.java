@@ -13,12 +13,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "reporting")
-public class Reporting {
+public class Reporting extends AuditMetadata{
     @Id
     private String id;
     private String userId;
     private String link;
     private String content;
+    private String userIsReportedId;
+    private Boolean isResolved;
     @DBRef
     private User user;
 }
