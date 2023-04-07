@@ -45,7 +45,6 @@ public class NotificationController {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Notification newNotification = notificationService.createNotification(notification, userId);
-        System.out.println("id receiver " + newNotification.getReceiverId());
         simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
         return new ResponseEntity<>(notification, HttpStatus.OK);
     }

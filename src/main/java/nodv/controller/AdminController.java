@@ -1,8 +1,11 @@
 package nodv.controller;
 
 import nodv.model.Comment;
+import nodv.model.Notification;
 import nodv.model.Reporting;
+import nodv.model.User;
 import nodv.security.TokenProvider;
+import nodv.service.NotificationService;
 import nodv.service.ReportingService;
 import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,9 @@ public class AdminController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    NotificationService notificationService;
 
     @Autowired
     TokenProvider tokenProvider;
@@ -50,5 +56,25 @@ public class AdminController {
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Reporting reporting =  reportingService.updateReportingState(id);
         return new ResponseEntity<>(reporting, HttpStatus.OK);
+    }
+
+    @PostMapping("/warning")
+    public ResponseEntity<?> createWarning( @RequestBody Notification notification){
+        // tang so luong warning cho user
+        String receiverId = notification.getReceiverId();
+        User user = userService.increaseNumOfWarning(receiverId);
+//        if(!user.getIsActive()) {
+            // tao thong bao warning neu chua bi khoa
+            String userId = "637c797126f4ca37f32d8d16";
+            Notification newNotification = notificationService.createNotification(notification, userId);
+            User user1 = userService.updateCountNotifications(receiverId, "true");
+            simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user1);
+            simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
+//        }else {
+//            simpMessagingTemplate.convertAndSend("/topic/lockedAccount/" + receiverId, receiverId);
+//        }
+
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

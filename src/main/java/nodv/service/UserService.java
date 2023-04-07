@@ -29,6 +29,8 @@ public class UserService {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    private final static Integer MAX_WARNING_COUNTS = 3;
+
     public User registerNewUser(AuthRequestMobile authRequestMobile) {
         User user = new User();
         user.setProvider(AuthProvider.valueOf(authRequestMobile.getProvider()));
@@ -210,6 +212,19 @@ public class UserService {
 
         userUpdate.setTopics(newListTopic);
         return userRepository.save(userUpdate);
+    }
+
+    public User increaseNumOfWarning(String userId){
+        User user = this.findById(userId);
+        Integer warningCounts = user.getNumOfWarning() != null ? user.getNumOfWarning()  : 0;
+        if(warningCounts == MAX_WARNING_COUNTS - 1){
+            // khoa user
+            user.setIsActive(false);
+        }else {
+          user.setNumOfWarning(warningCounts+1);
+        }
+
+        return userRepository.save(user);
     }
 }
 
