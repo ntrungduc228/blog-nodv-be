@@ -1,11 +1,14 @@
 package nodv.service;
 
 import nodv.exception.NotFoundException;
-import nodv.model.Comment;
-import nodv.model.Post;
-import nodv.model.User;
+import nodv.model.*;
 import nodv.repository.CommentRepository;
+import nodv.repository.ReportCommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.SourceFilteringListener;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,10 +19,14 @@ import java.util.Optional;
 public class CommentService {
     @Autowired
     CommentRepository commentRepository;
+
+    @Autowired
+    ReportCommentRepository reportCommentRepository;
     @Autowired
     UserService userService;
     @Autowired
     PostService postService;
+    private MongoTemplate mongoTemplate;
 
     //create
     public Comment createComment(Comment comment, String userId) throws Exception {
@@ -93,5 +100,74 @@ public class CommentService {
             throw new NotFoundException("Comment not found");
         }
 
+    }
+
+    public List<ReportComment> findAllReportComment() {
+        return reportCommentRepository.findAll();
+    }
+
+    public ReportComment createReportComment(String userId, String id, int type){
+//        List<ReportComment> countReport = reportCommentRepository.findByCommentIdAndType(id, 1);
+//        if(!countReport.isEmpty() && countReport != null && countReport.size() > 5){
+//            deleteComment(id);
+//
+//            throw new NotFoundException("Bi bao cao qua lan !!");
+//        }
+        List<String> listUserIdReported = new ArrayList<String>();
+        List<Integer> listTypeReported = new ArrayList<Integer>();
+        List<User> listUserReported = new ArrayList<User>();
+        User user = userService.findById(userId);
+        ReportComment reportComment = new ReportComment();
+
+        Optional<Comment> comment = commentRepository.findById(id);
+        ReportComment checkExist = reportCommentRepository.findByCommentId(id);
+        if (checkExist != null){
+            if(countValue(checkExist.getType(), 1) > 4){
+                checkExist.setStatus(true);
+                reportCommentRepository.save(checkExist);
+                deleteComment(id);
+                throw new NotFoundException("Bi bao cao qua 5 lan !!");
+            }else {
+                listUserIdReported = checkExist.getUserIdReport();
+                listUserIdReported.add(userId);
+                listTypeReported = checkExist.getType();
+                listTypeReported.add(type);
+                listUserReported = checkExist.getUser();
+                listUserReported.add(user);
+                checkExist.setType(listTypeReported);
+                checkExist.setUserIdReport(listUserIdReported);
+                checkExist.setUser(listUserReported);
+                checkExist.setCount(checkExist.getCount()+1);
+                reportComment = checkExist;
+            }
+        }else {
+            listUserIdReported.add(userId);
+            listTypeReported.add(type);
+            listUserReported.add(user);
+            reportComment.setUserIdReport(listUserIdReported);
+            reportComment.setCommentId(id);
+            reportComment.setType(listTypeReported);
+            reportComment.setCount(1);
+            reportComment.setStatus(false);
+            reportComment.setUser(listUserReported);
+            reportComment.setContentComment(comment.get().getContent());
+        }
+
+        return reportCommentRepository.save(reportComment);
+//        return countReport;
+    }
+    public ReportComment findByIdAndType(String id){
+        int type = 1;
+        Optional<ReportComment> listReport = reportCommentRepository.findById(id);
+        return listReport.get();
+    }
+    public long countValue(List<Integer> list, int value) {
+        return list.stream().filter(num -> num == value).count();
+    }
+    public ReportComment updateReportComment(String id){
+        Optional<ReportComment> reportComment = reportCommentRepository.findById(id);
+        reportComment.get().setStatus(true);
+        deleteComment(reportComment.get().getCommentId());
+        return reportCommentRepository.save(reportComment.get());
     }
 }

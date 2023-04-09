@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import nodv.model.Comment;
+import nodv.model.ReportComment;
 import nodv.security.TokenProvider;
 import nodv.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000", "https://blog-nodv-web.vercel.app"}, allowCredentials = "true")
@@ -67,6 +69,30 @@ public class CommentController {
     public ResponseEntity<?> deleteComment(@PathVariable String id) throws Exception {
         commentService.deleteComment(id);
         simpMessagingTemplate.convertAndSend("/topic/deletecomment", id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    @GetMapping("/listReportComment")
+    public ResponseEntity<?> getListReportComment() throws Exception {
+        List<ReportComment> reportComments = commentService.findAllReportComment();
+
+        return new ResponseEntity<>(reportComments, HttpStatus.OK);
+    }
+
+    @PostMapping("/report/{id}")
+//    @GetMapping("/report/{id}")
+    public ResponseEntity<?> reportComment(HttpServletRequest request, @PathVariable String id, @RequestParam(value = "type", defaultValue = "0", required = false) int type){
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        ReportComment reportComment = commentService.createReportComment(userId, id, type);
+//        List<ReportComment>reportComment = commentService.createReportComment(userId, id, type);
+//        return new ResponseEntity<>(id, HttpStatus.OK);
+        return new ResponseEntity<>(reportComment, HttpStatus.OK);
+
+    }
+
+    @PatchMapping("/updateReport/{id}")
+    public  ResponseEntity<?> updateReport( @PathVariable String id){
+        commentService.updateReportComment(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 }
