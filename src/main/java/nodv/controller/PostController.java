@@ -36,6 +36,7 @@ public class PostController {
     public ResponseEntity<?> getPosts(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            @RequestParam(value = "id", required = false) String id,
             @RequestParam(value = "topic", required = false) String topic,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "sort", required = false) String sortBy,
@@ -48,7 +49,7 @@ public class PostController {
         if (token != null) {
             userId = tokenProvider.getUserIdFromToken(token);
         }
-        Page<Document> postsPage = postService.findByFilter(page, limit, topic, title, authorId, sortBy, sortDirection, userId);
+        Page<Document> postsPage = postService.findByFilter(page, limit, id, topic, title, authorId, sortBy, sortDirection, userId);
         return new ResponseEntity<>(postsPage, HttpStatus.OK);
     }
 
@@ -161,6 +162,14 @@ public class PostController {
 
     @PatchMapping("/{id}/unlike")
     public ResponseEntity<?> unlikePost(@PathVariable String id, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Post post = postService.unlikePost(id, userId);
+        simpMessagingTemplate.convertAndSend("/topic/posts/" + post.getId() + "/like", post);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/report")
+    public ResponseEntity<?> report(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         Post post = postService.unlikePost(id, userId);
         simpMessagingTemplate.convertAndSend("/topic/posts/" + post.getId() + "/like", post);

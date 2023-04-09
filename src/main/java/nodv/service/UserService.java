@@ -214,17 +214,21 @@ public class UserService {
         return userRepository.save(userUpdate);
     }
 
-    public User increaseNumOfWarning(String userId){
+    public User increaseNumOfWarning(String userId) {
         User user = this.findById(userId);
-        Integer warningCounts = user.getNumOfWarning() != null ? user.getNumOfWarning()  : 0;
-        if(warningCounts == MAX_WARNING_COUNTS - 1){
+        Integer warningCounts = user.getNumOfWarning() != null ? user.getNumOfWarning() : 0;
+        if (warningCounts == MAX_WARNING_COUNTS - 1) {
             // khoa user
             user.setIsActive(false);
-        }else {
-          user.setNumOfWarning(warningCounts+1);
+        } else {
+            user.setNumOfWarning(warningCounts + 1);
         }
 
         return userRepository.save(user);
+    }
+
+    public List<User> findAllAdmin() {
+        return userRepository.findByRole(Role.ADMIN);
     }
 }
 

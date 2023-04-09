@@ -18,14 +18,14 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     Page<UserProjection> findByIdIn(List<String> ids, Pageable pageable);
 
-    @Query(value="{ '_id' : ?0 }", fields="{  'provider': 0, 'providerId': 0 }")
+    @Query(value = "{ '_id' : ?0 }", fields = "{  'provider': 0, 'providerId': 0 }")
     Optional<User> findByIdExcludingProviderAndProviderId(String id);
 
     List<UserProjection> findByFollowerIdContaining(String userId);
 
     Optional<User> findByEmail(String email);
 
-    @Query(value="{ 'role' : ?0 }", fields="{ 'provider': 0, 'providerId': 0 }")
+    @Query(value = "{ 'role' : ?0 }", fields = "{ 'provider': 0, 'providerId': 0 }")
     List<User> findByRole(Role role);
 
     Optional<User> findByProviderId(String providerId);
@@ -39,4 +39,6 @@ public interface UserRepository extends MongoRepository<User, String> {
     List<User> findByIdNotAndFollowerIdNotContaining(String userId, String Id, Pageable pageable);
 
     Long countByTopicsContaining(String topicId);
+
 }
+

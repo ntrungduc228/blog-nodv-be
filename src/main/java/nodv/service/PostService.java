@@ -2,10 +2,7 @@ package nodv.service;
 
 import nodv.exception.ForbiddenException;
 import nodv.exception.NotFoundException;
-import nodv.model.BlackList;
-import nodv.model.Post;
-import nodv.model.Topic;
-import nodv.model.User;
+import nodv.model.*;
 import nodv.projection.PostPreviewProjection;
 import nodv.repository.BlackListRepository;
 import nodv.repository.CommentRepository;
@@ -80,8 +77,18 @@ public class PostService {
             updatePost.setSubtitle(post.getSubtitle());
             return postRepository.save(updatePost);
         } else throw new ForbiddenException("You do not have permission to delete this post");
-
     }
+
+    public Post updatePostStatus(String id, PostStatus status) {
+        Optional<Post> post = postRepository.findById(id);
+        if (post.isEmpty()) {
+            throw new NotFoundException("Post is not found");
+        }
+        post.get().setStatus(status);
+        postRepository.save(post.get());
+        return post.get();
+    }
+
 
     public void deletePost(String id, String userId) {
         Post post = findById(id, userId);
@@ -124,8 +131,9 @@ public class PostService {
     }
 
 
-    public Page<Document> findByFilter(int page, int pageSize, String topicSlug, String title, String authorId, String sortBy, String sortDirection, String userId) {
+    public Page<Document> findByFilter(int page, int pageSize, String id, String topicSlug, String title, String authorId, String sortBy, String sortDirection, String userId) {
         Criteria criteria = new Criteria();
+
         if (topicSlug != null && !topicSlug.isEmpty()) {
             Topic topic = topicService.findBySlug(topicSlug);
             criteria.and("topics.id").is(topic.getId());
@@ -138,7 +146,9 @@ public class PostService {
             criteria.and("user.id").is(authorId);
         }
 
-        if (userId != null) {
+        if (id != null && !id.isEmpty()) {
+            criteria.and("id").is(id);
+        } else if (userId != null) {
             Optional<BlackList> blackList = blackListRepository.findByUserId(userId);
             blackList.ifPresent(list -> criteria.and("id").nin(list.getPostIds()));
         }
@@ -152,7 +162,7 @@ public class PostService {
         UnwindOperation userUnwind = Aggregation.unwind("user");
         ProjectionOperation projectionOperation = Aggregation.project()
                 .and(ConvertOperators.ToString.toString("$_id")).as("id")
-                .andInclude("title", "timeRead", "createdDate", "subtitle", "isPublish", "thumbnail")
+                .andInclude("title", "timeRead", "createdDate", "subtitle", "isPublish", "thumbnail", "status")
                 .and("user._id").as("user._id")
                 .and("user.username").as("user.username")
                 .and("user.avatar").as("user.avatar")
@@ -171,7 +181,13 @@ public class PostService {
         if ("trending".equalsIgnoreCase(sortBy)) {
             sortOperation = Aggregation.sort(direction, "likeCount");
         } else {
-            sortOperation = Aggregation.sort(direction, "createdDate");
+            String sort = "createdDate";
+            if (sortBy != null) sort = sortBy;
+            sortOperation = switch (sort) {
+                case "title" -> Aggregation.sort(direction, "title");
+                case "author" -> Aggregation.sort(direction, "user.username");
+                default -> Aggregation.sort(direction, "createdDate");
+            };
         }
 
         SkipOperation skipOperation = Aggregation.skip(page * pageSize);

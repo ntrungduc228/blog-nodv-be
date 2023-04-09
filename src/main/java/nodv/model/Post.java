@@ -23,6 +23,7 @@ public class Post extends AuditMetadata {
     private Integer timeRead;
     private Boolean isPublish;
     private List<String> userLikeIds;
+    private PostStatus status;
     @DBRef
     private List<Topic> topics;
     @DBRef

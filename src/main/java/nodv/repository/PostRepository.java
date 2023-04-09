@@ -14,11 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends MongoRepository<Post, String> {
+    Optional<Post> findById(String id);
+
     Page<PostPreviewProjection> findByTopicsIdAndIsPublishTrue(String topicId, Pageable pageable);
 
     Optional<Post> findByIdAndUserId(String id, String userId);
 
-    @Query(value="{ '_id' : ?0 }", fields="{ 'content' : 0, 'user': 0 }")
+    @Query(value = "{ '_id' : ?0 }", fields = "{ 'content' : 0, 'user': 0 }")
     Optional<Post> findByIdExcludingContentAndUser(String id);
 
     void deleteByIdAndUserId(String id, String userId);
