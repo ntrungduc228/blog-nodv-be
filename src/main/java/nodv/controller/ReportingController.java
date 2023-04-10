@@ -23,10 +23,10 @@ public class ReportingController {
     TokenProvider tokenProvider;
 
     @PostMapping()
-    public ResponseEntity<?> createReporting(HttpServletRequest request, @RequestBody Reporting reporting, String userIsReportedId) {
+    public ResponseEntity<?> createReporting(HttpServletRequest request, @RequestBody Reporting reporting) {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        Reporting newReporting = reportingService.createReporting(reporting, userId, userIsReportedId);
+        Reporting newReporting = reportingService.createReport(reporting, userId);
 
 
         // tao 1 thong bao toi tat ca cac admin co thuc hien real time

@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,13 +18,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Reporting extends AuditMetadata {
     @Id
     private String id;
-    private String userId;
-    private String link; //bỏ
+    private List<String> userIds;
     private String content;
-    private String userIsReportedId;// bỏ
     private Boolean isResolved;
     private ReportType type;
     private String objectId;
     @DBRef
-    private User user;
+    private List<User> users;
 }
