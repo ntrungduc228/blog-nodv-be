@@ -230,5 +230,27 @@ public class UserService {
     public List<User> findAllAdmin() {
         return userRepository.findByRole(Role.ADMIN);
     }
+    public List<User> findAllUsers() {
+//        var listUser = userRepository.findAll();
+//        for (var item:listUser){
+//            String idUser;
+//            idUser = item.getId();
+//
+//            User user = userRepository.findById(idUser).get();
+//            if(user.getIsActive()==null){
+//                user.setIsActive(true);
+//            }
+//            userRepository.save(user);
+//        }
+
+        return userRepository.findAll();
+    }
+
+    public User updateStatusUser(String id){
+        User user = findById(id);
+        user.setIsActive(!user.getIsActive());
+
+        return userRepository.save(user);
+    }
 }
 
