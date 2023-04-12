@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import nodv.model.Notification;
+import nodv.model.ReportType;
 import nodv.model.Reporting;
 import nodv.security.TokenProvider;
 import nodv.service.NotificationService;
@@ -33,5 +34,12 @@ public class ReportingController {
         // bo sung di
 
         return new ResponseEntity<>(newReporting, HttpStatus.OK);
+    }
+    @PostMapping("/report/{id}")
+    public ResponseEntity<?> reportComment(HttpServletRequest request, @PathVariable String id, @RequestParam(value = "contentReport", defaultValue = "", required = false) String contentReport, @RequestParam(value = "type", defaultValue = "", required = false) ReportType type){
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Reporting reportComment = reportingService.createReportComment(userId, id,contentReport, type);
+        return new ResponseEntity<>(reportComment, HttpStatus.OK);
+
     }
 }
