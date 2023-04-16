@@ -105,6 +105,14 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @PatchMapping("/notifications-count/reset")
+    public ResponseEntity<?> resetCountNotifications(HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        User user = userService.updateCountNotifications(userId, String.valueOf(false));
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     //    get user follower
     @GetMapping("/{id}/followers")
     public ResponseEntity<?> getFollowers(
