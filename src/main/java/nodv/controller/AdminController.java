@@ -4,8 +4,10 @@ import nodv.model.Comment;
 import nodv.model.Notification;
 import nodv.model.Reporting;
 import nodv.model.User;
+import nodv.payload.SystemResponse;
 import nodv.security.TokenProvider;
 import nodv.service.NotificationService;
+import nodv.service.PostService;
 import nodv.service.ReportingService;
 import nodv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class AdminController {
     UserService userService;
 
     @Autowired
+    PostService postService;
+
+    @Autowired
     NotificationService notificationService;
 
     @Autowired
@@ -42,6 +47,14 @@ public class AdminController {
         return "Admin Resources !!!";
     }
 
+    @GetMapping("/overview")
+    public ResponseEntity<?> overviewSystem(HttpServletRequest request) {
+        Long users = userService.countAllUsers();
+        Long posts = postService.countAllPosts();
+        Long reportings = reportingService.countAllReportings();x
+        SystemResponse systemResponse = new SystemResponse(users, posts, reportings);
+        return new ResponseEntity<>(systemResponse, HttpStatus.OK);
+    }
 
     @GetMapping("/reporting")
     public ResponseEntity<?> getAllReporting(HttpServletRequest request) {

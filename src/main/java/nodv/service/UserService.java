@@ -31,6 +31,10 @@ public class UserService {
 
     private final static Integer MAX_WARNING_COUNTS = 3;
 
+    public Long countAllUsers() {
+        return userRepository.count();
+    }
+
     public User registerNewUser(AuthRequestMobile authRequestMobile) {
         User user = new User();
         user.setProvider(AuthProvider.valueOf(authRequestMobile.getProvider()));

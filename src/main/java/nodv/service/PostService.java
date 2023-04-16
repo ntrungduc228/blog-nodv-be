@@ -43,6 +43,10 @@ public class PostService {
     @Autowired
     BlackListRepository blackListRepository;
 
+    public Long countAllPosts() {
+        return postRepository.count();
+    }
+
     // mongodb-method
     public Post findById(String id, String userId) {
         Optional<Post> post = postRepository.findById(id);

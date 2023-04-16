@@ -34,6 +34,10 @@ public class ReportingService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    public Long countAllReportings() {
+        return reportingRepository.count();
+    }
+
     public Reporting getReportingById(String id) {
         Optional<Reporting> reporting = reportingRepository.findById(id);
         if(!reporting.isPresent()) {
