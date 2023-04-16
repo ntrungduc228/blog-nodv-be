@@ -2,6 +2,7 @@ package nodv.controller;
 
 import nodv.model.Comment;
 import nodv.model.Post;
+import nodv.model.PostStatus;
 import nodv.projection.PostPreviewProjection;
 import nodv.security.TokenProvider;
 import nodv.service.PostService;
