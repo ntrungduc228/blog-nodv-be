@@ -4,12 +4,16 @@ import nodv.exception.NotFoundException;
 import nodv.model.*;
 import nodv.repository.ReportingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +33,23 @@ public class ReportingService {
     SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    public Long countAllReportings() {
+        return reportingRepository.count();
+    }
+
+    public Reporting getReportingById(String id) {
+        Optional<Reporting> reporting = reportingRepository.findById(id);
+        if(!reporting.isPresent()) {
+            return null;
+        }
+        return reporting.get();
+    }
+
+    public Page<Reporting> getReportingsByPage(int page, int limit){
+        Pageable pageable = PageRequest.of(page, limit);
+        return reportingRepository.findAll(pageable);
+    }
 
     public Reporting createReporting(Reporting reporting, String userId, String userIsReportedId) {
         User user = userService.findById(userId);
@@ -99,5 +120,41 @@ public class ReportingService {
             simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
         });
         return reporting;
+    }
+
+    public Reporting createReportComment(String userId, String id, String content, ReportType type){
+        List<String> listUserIdReported = new ArrayList<String>();
+        List<User> listUserReported = new ArrayList<User>();
+        List<String> listContentReport = new ArrayList<>();
+        User user = userService.findById(userId);
+        Reporting reportComment = new Reporting();
+
+//        Optional<Comment> comment = commentRepository.findById(id);
+        Reporting checkExist = reportingRepository.findByObjectId(id);
+        if (checkExist != null){
+            listUserIdReported = checkExist.getUserIds();
+            listUserIdReported.add(userId);
+            listUserReported = checkExist.getUsers();
+            listUserReported.add(user);
+            listContentReport = checkExist.getContent();
+            listContentReport.add(content);
+            checkExist.setUserIds(listUserIdReported);
+            checkExist.setContent(listContentReport);
+            checkExist.setUsers(listUserReported);
+
+            reportComment = checkExist;
+        }else {
+            listUserIdReported.add(userId);
+            listUserReported.add(user);
+            listContentReport.add(content);
+            reportComment.setUserIds(listUserIdReported);
+            reportComment.setContent(listContentReport);
+            reportComment.setIsResolved(false);
+            reportComment.setType(type);
+            reportComment.setObjectId(id);
+            reportComment.setUsers(listUserReported);
+        }
+
+        return reportingRepository.save(reportComment);
     }
 }

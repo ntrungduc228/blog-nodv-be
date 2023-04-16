@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = String.valueOf(authentication.getCredentials());
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
         // If user is not null, then we check if password matches
         if (userDetails != null){
             if (passwordEncoder.matches(password, userDetails.getPassword())){
@@ -34,7 +36,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
                 return authenticationToken;
-            }
+            }else throw new UsernameNotFoundException("Incorrect email or password!!!");
+
         }
         return null;
 

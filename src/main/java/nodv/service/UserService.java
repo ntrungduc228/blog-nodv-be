@@ -31,6 +31,10 @@ public class UserService {
 
     private final static Integer MAX_WARNING_COUNTS = 3;
 
+    public Long countAllUsers() {
+        return userRepository.count();
+    }
+
     public User registerNewUser(AuthRequestMobile authRequestMobile) {
         User user = new User();
         user.setProvider(AuthProvider.valueOf(authRequestMobile.getProvider()));
@@ -229,6 +233,28 @@ public class UserService {
 
     public List<User> findAllAdmin() {
         return userRepository.findByRole(Role.ADMIN);
+    }
+    public List<User> findAllUsers() {
+//        var listUser = userRepository.findAll();
+//        for (var item:listUser){
+//            String idUser;
+//            idUser = item.getId();
+//
+//            User user = userRepository.findById(idUser).get();
+//            if(user.getIsActive()==null){
+//                user.setIsActive(true);
+//            }
+//            userRepository.save(user);
+//        }
+
+        return userRepository.findAll();
+    }
+
+    public User updateStatusUser(String id){
+        User user = findById(id);
+        user.setIsActive(!user.getIsActive());
+
+        return userRepository.save(user);
     }
 }
 

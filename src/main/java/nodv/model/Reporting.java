@@ -19,10 +19,11 @@ public class Reporting extends AuditMetadata {
     @Id
     private String id;
     private List<String> userIds;
-    private String content;
+    private List<String> content;
     private Boolean isResolved;
     private ReportType type;
     private String objectId;
+    private String userIdIsReported;
     @DBRef
     private List<User> users;
 }
