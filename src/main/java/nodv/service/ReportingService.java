@@ -4,6 +4,9 @@ import nodv.exception.NotFoundException;
 import nodv.model.*;
 import nodv.repository.ReportingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,6 +33,23 @@ public class ReportingService {
     SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    public Long countAllReportings() {
+        return reportingRepository.count();
+    }
+
+    public Reporting getReportingById(String id) {
+        Optional<Reporting> reporting = reportingRepository.findById(id);
+        if(!reporting.isPresent()) {
+            return null;
+        }
+        return reporting.get();
+    }
+
+    public Page<Reporting> getReportingsByPage(int page, int limit){
+        Pageable pageable = PageRequest.of(page, limit);
+        return reportingRepository.findAll(pageable);
+    }
 
     public Reporting createReporting(Reporting reporting, String userId, String userIsReportedId) {
         User user = userService.findById(userId);

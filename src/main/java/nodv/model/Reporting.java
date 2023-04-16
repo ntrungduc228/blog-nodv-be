@@ -23,6 +23,7 @@ public class Reporting extends AuditMetadata {
     private Boolean isResolved;
     private ReportType type;
     private String objectId;
+    private String userIdIsReported;
     @DBRef
     private List<User> users;
 }
