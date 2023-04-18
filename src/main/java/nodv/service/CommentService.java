@@ -80,6 +80,14 @@ public class CommentService {
         return commentRepository.save(updateUnlike.get());
     }
 
+    public Comment findById(String id){
+        Optional<Comment> comment = commentRepository.findById(id);
+        if(!comment.isPresent()) {
+            throw new NotFoundException("Comment is not found");
+        }
+        return comment.get();
+    }
+
     //get comment
     public List<Comment> findByPostId(String postId) {
         List<Comment> comments = commentRepository.findByPostIdOrderByCreatedDateDesc(postId);
