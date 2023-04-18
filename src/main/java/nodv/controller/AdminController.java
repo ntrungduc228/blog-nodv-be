@@ -114,4 +114,18 @@ public class AdminController {
 
         return new ResponseEntity<>(reporting, HttpStatus.OK);
     }
+
+    @GetMapping("/users/allUsers")
+    public ResponseEntity<?> getAllUsers(HttpServletRequest request) {
+//        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        List<User> users = userService.findAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+    @PatchMapping("/users/updateStatusUser/{id}")
+    public ResponseEntity<?> updateStatusUser(HttpServletRequest request, @PathVariable String id) {
+        User user = userService.updateStatusUser(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+
+
+    }
 }
