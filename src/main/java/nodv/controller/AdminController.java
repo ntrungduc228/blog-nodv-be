@@ -39,9 +39,10 @@ public class AdminController {
     CommentService commentService;
 
     @GetMapping("")
-    public String getAdmin(){
+    public String getAdmin() {
         return "Admin Resources !!!";
     }
+
     @GetMapping("/overview")
     public ResponseEntity<?> overviewSystem(HttpServletRequest request) {
         Long users = userService.countAllUsers();
@@ -63,29 +64,29 @@ public class AdminController {
     public ResponseEntity<?> updateReportingStatus(@PathVariable String id, HttpServletRequest request) throws Exception {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
-        Reporting reporting =  reportingService.updateReportingState(id);
+        Reporting reporting = reportingService.updateReportingState(id);
         return new ResponseEntity<>(reporting, HttpStatus.OK);
     }
 
     @PostMapping("/warning")
-    public ResponseEntity<?> createWarning(@RequestBody Reporting reporting, HttpServletRequest request){
+    public ResponseEntity<?> createWarning(@RequestBody Reporting reporting, HttpServletRequest request) {
         String jwtToken = tokenProvider.getJwtFromRequest(request);
         String userId = tokenProvider.getUserIdFromToken(jwtToken);
         Object object;
-        String link= "";
+        String link = "";
         String receiverId = "";
 
-                switch (reporting.getType()){
+        switch (reporting.getType()) {
             case POST -> {
                 object = (Post) postService.findById(reporting.getObjectId());
                 receiverId = ((Post) object).getUserId();
-                link = "posts/" +  ((Post) object).getId();
+                link = "posts/" + ((Post) object).getId();
                 break;
             }
             case COMMENT -> {
                 object = commentService.findById(reporting.getObjectId());
                 receiverId = ((Comment) object).getUserId();
-                link = "posts/" +  ((Comment) object).getPostId();
+                link = "posts/" + ((Comment) object).getPostId();
 
                 break;
             }
@@ -93,7 +94,7 @@ public class AdminController {
         // tang so luong warning cho user
         User user = userService.increaseNumOfWarning(receiverId);
         System.out.println(receiverId);
-        if(user.getIsActive()) {
+        if (user.getIsActive()) {
             // tao thong bao warning neu chua bi khoa
             Notification notification = new Notification();
             notification.setReceiverId(receiverId);
@@ -105,13 +106,27 @@ public class AdminController {
 //            User user1 = userService.updateCountNotifications(receiverId, "true");
 //            simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user1);
             simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
-        }else {
+        } else {
             simpMessagingTemplate.convertAndSend("/topic/lockedAccount/" + receiverId, receiverId);
         }
 
         // update status reporting
-       reporting = reportingService.updateReportingState(reporting.getId());
+        reporting = reportingService.updateReportingState(reporting.getId());
 
         return new ResponseEntity<>(reporting, HttpStatus.OK);
+    }
+
+    @PatchMapping("/posts/{id}/lock")
+    public ResponseEntity<?> lockPost(@PathVariable String id, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Post post = postService.updatePostStatus(id, PostStatus.LOCKED);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @PatchMapping("/posts/{id}/unlock")
+    public ResponseEntity<?> unlockPost(@PathVariable String id, HttpServletRequest request) {
+        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
+        Post post = postService.updatePostStatus(id, PostStatus.NORMAL);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 }
