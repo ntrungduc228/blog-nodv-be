@@ -47,6 +47,15 @@ public class PostService {
         return postRepository.count();
     }
 
+    public Post findById(String id) {
+        Optional<Post> post = postRepository.findById(id);
+        if (post.isEmpty()) {
+            throw new NotFoundException("Post is not found");
+        }
+
+        return post.get();
+    }
+
     // mongodb-method
     public Post findById(String id, String userId) {
         Optional<Post> post = postRepository.findById(id);

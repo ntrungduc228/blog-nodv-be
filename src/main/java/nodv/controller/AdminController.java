@@ -1,13 +1,9 @@
 package nodv.controller;
 
-import nodv.model.Comment;
-import nodv.model.Notification;
-import nodv.model.Reporting;
-import nodv.model.User;
+import nodv.model.*;
+import nodv.payload.SystemResponse;
 import nodv.security.TokenProvider;
-import nodv.service.NotificationService;
-import nodv.service.ReportingService;
-import nodv.service.UserService;
+import nodv.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,11 +32,24 @@ public class AdminController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    @Autowired
+    PostService postService;
+
+    @Autowired
+    CommentService commentService;
+
     @GetMapping("")
     public String getAdmin(){
         return "Admin Resources !!!";
     }
-
+    @GetMapping("/overview")
+    public ResponseEntity<?> overviewSystem(HttpServletRequest request) {
+        Long users = userService.countAllUsers();
+        Long posts = postService.countAllPosts();
+        Long reportings = reportingService.countAllReportings();
+        SystemResponse systemResponse = new SystemResponse(users, posts, reportings);
+        return new ResponseEntity<>(systemResponse, HttpStatus.OK);
+    }
 
     @GetMapping("/reporting")
     public ResponseEntity<?> getAllReporting(HttpServletRequest request) {
@@ -59,22 +68,50 @@ public class AdminController {
     }
 
     @PostMapping("/warning")
-    public ResponseEntity<?> createWarning( @RequestBody Notification notification){
+    public ResponseEntity<?> createWarning(@RequestBody Reporting reporting, HttpServletRequest request){
+        String jwtToken = tokenProvider.getJwtFromRequest(request);
+        String userId = tokenProvider.getUserIdFromToken(jwtToken);
+        Object object;
+        String link= "";
+        String receiverId = "";
+
+                switch (reporting.getType()){
+            case POST -> {
+                object = (Post) postService.findById(reporting.getObjectId());
+                receiverId = ((Post) object).getUserId();
+                link = "posts/" +  ((Post) object).getId();
+                break;
+            }
+            case COMMENT -> {
+                object = commentService.findById(reporting.getObjectId());
+                receiverId = ((Comment) object).getUserId();
+                link = "posts/" +  ((Comment) object).getPostId();
+
+                break;
+            }
+        }
         // tang so luong warning cho user
-        String receiverId = notification.getReceiverId();
         User user = userService.increaseNumOfWarning(receiverId);
-//        if(!user.getIsActive()) {
+        System.out.println(receiverId);
+        if(user.getIsActive()) {
             // tao thong bao warning neu chua bi khoa
-            String userId = "637c797126f4ca37f32d8d16";
+            Notification notification = new Notification();
+            notification.setReceiverId(receiverId);
+            notification.setSenderId(userId);
+            notification.setType("WARNING");
+            notification.setIsRead(false);
+            notification.setLink(link);
             Notification newNotification = notificationService.createNotification(notification, userId);
-            User user1 = userService.updateCountNotifications(receiverId, "true");
-            simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user1);
+//            User user1 = userService.updateCountNotifications(receiverId, "true");
+//            simpMessagingTemplate.convertAndSend("/topic/notifications/" + user.getId() + "/countNotifications", user1);
             simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
-//        }else {
-//            simpMessagingTemplate.convertAndSend("/topic/lockedAccount/" + receiverId, receiverId);
-//        }
+        }else {
+            simpMessagingTemplate.convertAndSend("/topic/lockedAccount/" + receiverId, receiverId);
+        }
 
+        // update status reporting
+       reporting = reportingService.updateReportingState(reporting.getId());
 
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(reporting, HttpStatus.OK);
     }
 }
