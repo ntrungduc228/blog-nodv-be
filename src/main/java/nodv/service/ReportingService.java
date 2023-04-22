@@ -2,6 +2,7 @@ package nodv.service;
 
 import nodv.exception.NotFoundException;
 import nodv.model.*;
+import nodv.repository.CommentRepository;
 import nodv.repository.ReportingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,7 +27,8 @@ public class ReportingService {
     UserService userService;
     @Autowired
     PostService postService;
-
+    @Autowired
+    CommentRepository commentRepository;
     @Autowired
     NotificationService notificationService;
     @Autowired
@@ -121,8 +123,16 @@ public class ReportingService {
         });
         return reporting;
     }
-
+    public void updateStatusComment(String id, String status) {
+        Optional<Comment> updateComment = commentRepository.findById(id);
+        if (updateComment.isEmpty()) {
+            throw new NotFoundException("comment not found");
+        }
+        updateComment.get().setStatus(status);
+        commentRepository.save(updateComment.get());
+    }
     public Reporting createReportComment(String userId, String id, String content, ReportType type){
+        updateStatusComment(id, "Reported");
         List<String> listUserIdReported = new ArrayList<String>();
         List<User> listUserReported = new ArrayList<User>();
         List<String> listContentReport = new ArrayList<>();

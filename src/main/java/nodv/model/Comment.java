@@ -24,6 +24,7 @@ public class Comment extends AuditMetadata {
     private String content;
     private List<String> userLikeIds;
     private String replyId;
+    private String status;
     @DBRef
     private User user;
 }
