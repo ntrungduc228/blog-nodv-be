@@ -5,6 +5,8 @@ import nodv.payload.SystemResponse;
 import nodv.security.TokenProvider;
 import nodv.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.bson.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -49,6 +51,23 @@ public class AdminController {
         Long reportings = reportingService.countAllReportings();
         SystemResponse systemResponse = new SystemResponse(users, posts, reportings);
         return new ResponseEntity<>(systemResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/reportings")
+    public ResponseEntity<?> getReportings(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            HttpServletRequest request) {
+//        List<Reporting> reportings = reportingService.getReportingsByPage(page, limit).getContent();
+        Page<Reporting> reportings = reportingService.getReportingsByPage(page, limit);
+        return new ResponseEntity<>(reportings, HttpStatus.OK);
+    }
+
+    @GetMapping("/reporting/{id}")
+    public ResponseEntity<?> getReportingById(@PathVariable String id, HttpServletRequest request) throws Exception {
+        System.out.println("id " + id);
+        Reporting reporting =  reportingService.getReportingById(id);
+        return new ResponseEntity<>(reporting, HttpStatus.OK);
     }
 
     @GetMapping("/reporting")
