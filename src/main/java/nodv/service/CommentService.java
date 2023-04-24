@@ -4,14 +4,18 @@ import nodv.exception.NotFoundException;
 import nodv.model.*;
 import nodv.repository.CommentRepository;
 import nodv.repository.ReportCommentRepository;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.SourceFilteringListener;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,14 +117,29 @@ public class CommentService {
     public List<ReportComment> findAllReportComment() {
         return reportCommentRepository.findAll();
     }
+    public void updateStatusComment(String id, String status) {
+        Optional<Comment> updateComment = commentRepository.findById(id);
+        if (updateComment.isEmpty()) {
+            throw new NotFoundException("comment not found");
+        }
+        updateComment.get().setStatus(status);
+        commentRepository.save(updateComment.get());
+    }
 
-    public ReportComment createReportComment(String userId, String id, int type){
+    public ReportComment createReportComment(String userId, String id, int type) {
 //        List<ReportComment> countReport = reportCommentRepository.findByCommentIdAndType(id, 1);
 //        if(!countReport.isEmpty() && countReport != null && countReport.size() > 5){
 //            deleteComment(id);
 //
 //            throw new NotFoundException("Bi bao cao qua lan !!");
 //        }
+        Optional<Comment> updateComment = commentRepository.findById(id);
+        if (updateComment.isEmpty()) {
+            throw new NotFoundException("comment not found");
+        }
+        updateComment.get().setStatus("Reported");
+        commentRepository.save(updateComment.get());
+//        updateStatusComment(id, "Reported");
         List<String> listUserIdReported = new ArrayList<String>();
         List<Integer> listTypeReported = new ArrayList<Integer>();
         List<User> listUserReported = new ArrayList<User>();
@@ -177,5 +196,9 @@ public class CommentService {
         reportComment.get().setStatus(true);
         deleteComment(reportComment.get().getCommentId());
         return reportCommentRepository.save(reportComment.get());
+    }
+    public Page<Comment> findByFilter(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return commentRepository.findAll(pageable);
     }
 }
