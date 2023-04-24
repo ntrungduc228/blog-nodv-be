@@ -5,6 +5,7 @@ import nodv.model.AuthProvider;
 import nodv.model.Role;
 import nodv.model.User;
 import nodv.payload.AuthRequestMobile;
+import nodv.payload.MonthlyCount;
 import nodv.projection.UserProjection;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -255,6 +259,24 @@ public class UserService {
         user.setIsActive(!user.getIsActive());
 
         return userRepository.save(user);
+    }
+
+    public List<MonthlyCount> getMonthlyCount(){
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.project()
+                        .and(DateOperators.DateToString.dateOf("createdDate").toString("%Y-%m")).as("month"),
+                Aggregation.group("month")
+                        .count().as("total"),
+                Aggregation.project("total").and("_id").as("month")
+
+        );
+
+        AggregationResults<MonthlyCount> results = mongoTemplate.aggregate(
+                aggregation, "users", MonthlyCount.class
+        );
+
+        List<MonthlyCount> monthlyCounts = results.getMappedResults();
+        return monthlyCounts;
     }
 }
 

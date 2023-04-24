@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import nodv.model.*;
+import nodv.payload.MonthlyCount;
 import nodv.payload.SystemResponse;
 import nodv.security.TokenProvider;
 import nodv.service.*;
@@ -51,6 +52,24 @@ public class AdminController {
         Long reportings = reportingService.countAllReportings();
         SystemResponse systemResponse = new SystemResponse(users, posts, reportings);
         return new ResponseEntity<>(systemResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/overview/posts")
+    public ResponseEntity<?> overviewPosts(HttpServletRequest request) {
+        List<MonthlyCount> monthlyCounts = postService.getMonthlyCount();
+        return new ResponseEntity<>(monthlyCounts, HttpStatus.OK);
+    }
+
+    @GetMapping("/overview/users")
+    public ResponseEntity<?> overviewUsers(HttpServletRequest request) {
+        List<MonthlyCount> monthlyCounts = userService.getMonthlyCount();
+        return new ResponseEntity<>(monthlyCounts, HttpStatus.OK);
+    }
+
+    @GetMapping("/overview/reportings")
+    public ResponseEntity<?> overviewReportings(HttpServletRequest request) {
+        List<MonthlyCount> monthlyCounts = reportingService.getMonthlyCount();
+        return new ResponseEntity<>(monthlyCounts, HttpStatus.OK);
     }
 
     @GetMapping("/reportings")

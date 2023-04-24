@@ -2,6 +2,7 @@ package nodv.service;
 
 import nodv.exception.NotFoundException;
 import nodv.model.*;
+import nodv.payload.MonthlyCount;
 import nodv.repository.ReportingRepository;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,5 +161,23 @@ public class ReportingService {
         }
 
         return reportingRepository.save(reportComment);
+    }
+
+    public List<MonthlyCount> getMonthlyCount(){
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.project()
+                        .and(DateOperators.DateToString.dateOf("createdDate").toString("%Y-%m")).as("month"),
+                Aggregation.group("month")
+                        .count().as("total"),
+                Aggregation.project("total").and("_id").as("month")
+
+        );
+
+        AggregationResults<MonthlyCount> results = mongoTemplate.aggregate(
+                aggregation, "reporting", MonthlyCount.class
+        );
+
+        List<MonthlyCount> monthlyCounts = results.getMappedResults();
+        return monthlyCounts;
     }
 }

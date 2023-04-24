@@ -3,6 +3,7 @@ package nodv.service;
 import nodv.exception.ForbiddenException;
 import nodv.exception.NotFoundException;
 import nodv.model.*;
+import nodv.payload.MonthlyCount;
 import nodv.projection.PostPreviewProjection;
 import nodv.repository.BlackListRepository;
 import nodv.repository.CommentRepository;
@@ -284,5 +285,23 @@ public class PostService {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         List<String> ids = bookmarkService.getListPostIds(userId);
         return postRepository.findByIdIn(ids, pageable);
+    }
+
+    public List<MonthlyCount> getMonthlyCount(){
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.project()
+                        .and(DateOperators.DateToString.dateOf("lastModifiedDate").toString("%Y-%m")).as("month"),
+                Aggregation.group("month")
+                        .count().as("total"),
+                Aggregation.project("total").and("_id").as("month")
+
+        );
+
+        AggregationResults<MonthlyCount> results = mongoTemplate.aggregate(
+                aggregation, "posts", MonthlyCount.class
+        );
+
+       List<MonthlyCount> monthlyCounts = results.getMappedResults();
+       return monthlyCounts;
     }
 }
