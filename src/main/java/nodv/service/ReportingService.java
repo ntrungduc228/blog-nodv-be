@@ -2,21 +2,25 @@ package nodv.service;
 
 import nodv.exception.NotFoundException;
 import nodv.model.*;
+import nodv.payload.MonthlyCount;
 import nodv.repository.CommentRepository;
 import nodv.repository.ReportingRepository;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportingService {
@@ -49,8 +53,9 @@ public class ReportingService {
     }
 
     public Page<Reporting> getReportingsByPage(int page, int limit){
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         return reportingRepository.findAll(pageable);
+
     }
 
     public Reporting createReporting(Reporting reporting, String userId, String userIsReportedId) {
@@ -166,5 +171,23 @@ public class ReportingService {
         }
 
         return reportingRepository.save(reportComment);
+    }
+
+    public List<MonthlyCount> getMonthlyCount(){
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.project()
+                        .and(DateOperators.DateToString.dateOf("createdDate").toString("%Y-%m")).as("month"),
+                Aggregation.group("month")
+                        .count().as("total"),
+                Aggregation.project("total").and("_id").as("month")
+
+        );
+
+        AggregationResults<MonthlyCount> results = mongoTemplate.aggregate(
+                aggregation, "reporting", MonthlyCount.class
+        );
+
+        List<MonthlyCount> monthlyCounts = results.getMappedResults();
+        return monthlyCounts;
     }
 }

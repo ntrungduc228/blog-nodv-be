@@ -1,6 +1,7 @@
 package nodv.controller;
 
 import nodv.model.*;
+import nodv.payload.MonthlyCount;
 import nodv.payload.SystemResponse;
 import nodv.security.TokenProvider;
 import nodv.service.*;
@@ -52,6 +53,41 @@ public class AdminController {
         Long reportings = reportingService.countAllReportings();
         SystemResponse systemResponse = new SystemResponse(users, posts, reportings);
         return new ResponseEntity<>(systemResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/overview/posts")
+    public ResponseEntity<?> overviewPosts(HttpServletRequest request) {
+        List<MonthlyCount> monthlyCounts = postService.getMonthlyCount();
+        return new ResponseEntity<>(monthlyCounts, HttpStatus.OK);
+    }
+
+    @GetMapping("/overview/users")
+    public ResponseEntity<?> overviewUsers(HttpServletRequest request) {
+        List<MonthlyCount> monthlyCounts = userService.getMonthlyCount();
+        return new ResponseEntity<>(monthlyCounts, HttpStatus.OK);
+    }
+
+    @GetMapping("/overview/reportings")
+    public ResponseEntity<?> overviewReportings(HttpServletRequest request) {
+        List<MonthlyCount> monthlyCounts = reportingService.getMonthlyCount();
+        return new ResponseEntity<>(monthlyCounts, HttpStatus.OK);
+    }
+
+    @GetMapping("/reportings")
+    public ResponseEntity<?> getReportings(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
+            HttpServletRequest request) {
+//        List<Reporting> reportings = reportingService.getReportingsByPage(page, limit).getContent();
+        Page<Reporting> reportings = reportingService.getReportingsByPage(page, limit);
+        return new ResponseEntity<>(reportings, HttpStatus.OK);
+    }
+
+    @GetMapping("/reporting/{id}")
+    public ResponseEntity<?> getReportingById(@PathVariable String id, HttpServletRequest request) throws Exception {
+        System.out.println("id " + id);
+        Reporting reporting =  reportingService.getReportingById(id);
+        return new ResponseEntity<>(reporting, HttpStatus.OK);
     }
 
     @GetMapping("/reporting")
