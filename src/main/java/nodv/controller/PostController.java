@@ -1,12 +1,11 @@
 package nodv.controller;
 
-import nodv.model.Comment;
-import nodv.model.Post;
-import nodv.model.PostStatus;
+import nodv.model.*;
 import nodv.projection.PostPreviewProjection;
 import nodv.security.TokenProvider;
 import nodv.service.PostService;
 import nodv.service.CommentService;
+import nodv.service.ReportingService;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +26,9 @@ public class PostController {
     PostService postService;
     @Autowired
     CommentService commentService;
+
+    @Autowired
+    ReportingService reportingService;
     @Autowired
     TokenProvider tokenProvider;
     @Autowired
@@ -170,11 +172,10 @@ public class PostController {
     }
 
     @PostMapping("/{id}/report")
-    public ResponseEntity<?> report(@PathVariable String id, HttpServletRequest request) {
+    public ResponseEntity<?> report(HttpServletRequest request, @RequestBody Reporting reporting) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        Post post = postService.unlikePost(id, userId);
-        simpMessagingTemplate.convertAndSend("/topic/posts/" + post.getId() + "/like", post);
-        return new ResponseEntity<>(post, HttpStatus.OK);
+        Reporting report = reportingService.createReport(reporting, userId, ReportType.POST);
+        return new ResponseEntity<>(report, HttpStatus.OK);
     }
 
     //get comment

@@ -2,8 +2,11 @@ package nodv.controller;
 
 import nodv.model.Comment;
 import nodv.model.ReportComment;
+import nodv.model.ReportType;
+import nodv.model.Reporting;
 import nodv.security.TokenProvider;
 import nodv.service.CommentService;
+import nodv.service.ReportingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,9 @@ public class CommentController {
     TokenProvider tokenProvider;
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    ReportingService reportingService;
 
     //create
     @PostMapping("")
@@ -79,19 +85,15 @@ public class CommentController {
         return new ResponseEntity<>(reportComments, HttpStatus.OK);
     }
 
-    @PostMapping("/report/{id}")
-//    @GetMapping("/report/{id}")
-    public ResponseEntity<?> reportComment(HttpServletRequest request, @PathVariable String id, @RequestParam(value = "type", defaultValue = "0", required = false) int type){
+    @PostMapping("/{id}/report")
+    public ResponseEntity<?> report(HttpServletRequest request, @RequestBody Reporting reporting) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
-        ReportComment reportComment = commentService.createReportComment(userId, id, type);
-//        List<ReportComment>reportComment = commentService.createReportComment(userId, id, type);
-//        return new ResponseEntity<>(id, HttpStatus.OK);
-        return new ResponseEntity<>(reportComment, HttpStatus.OK);
-
+        Reporting report = reportingService.createReport(reporting, userId, ReportType.COMMENT);
+        return new ResponseEntity<>(report, HttpStatus.OK);
     }
 
     @PatchMapping("/updateReport/{id}")
-    public  ResponseEntity<?> updateReport( @PathVariable String id){
+    public ResponseEntity<?> updateReport(@PathVariable String id) {
         commentService.updateReportComment(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }

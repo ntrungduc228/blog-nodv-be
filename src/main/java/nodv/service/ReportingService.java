@@ -46,13 +46,13 @@ public class ReportingService {
 
     public Reporting getReportingById(String id) {
         Optional<Reporting> reporting = reportingRepository.findById(id);
-        if(!reporting.isPresent()) {
+        if (!reporting.isPresent()) {
             return null;
         }
         return reporting.get();
     }
 
-    public Page<Reporting> getReportingsByPage(int page, int limit){
+    public Page<Reporting> getReportingsByPage(int page, int limit) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         return reportingRepository.findAll(pageable);
 
@@ -128,6 +128,7 @@ public class ReportingService {
         });
         return reporting;
     }
+
     public void updateStatusComment(String id, String status) {
         Optional<Comment> updateComment = commentRepository.findById(id);
         if (updateComment.isEmpty()) {
@@ -136,7 +137,8 @@ public class ReportingService {
         updateComment.get().setStatus(status);
         commentRepository.save(updateComment.get());
     }
-    public Reporting createReportComment(String userId, String id, String content, ReportType type){
+
+    public Reporting createReportComment(String userId, String id, String content, ReportType type) {
         updateStatusComment(id, "Reported");
         List<String> listUserIdReported = new ArrayList<String>();
         List<User> listUserReported = new ArrayList<User>();
@@ -146,7 +148,7 @@ public class ReportingService {
 
 //        Optional<Comment> comment = commentRepository.findById(id);
         Reporting checkExist = reportingRepository.findByObjectId(id);
-        if (checkExist != null){
+        if (checkExist != null) {
             listUserIdReported = checkExist.getUserIds();
             listUserIdReported.add(userId);
             listUserReported = checkExist.getUsers();
@@ -158,7 +160,7 @@ public class ReportingService {
             checkExist.setUsers(listUserReported);
 
             reportComment = checkExist;
-        }else {
+        } else {
             listUserIdReported.add(userId);
             listUserReported.add(user);
             listContentReport.add(content);
@@ -173,7 +175,49 @@ public class ReportingService {
         return reportingRepository.save(reportComment);
     }
 
-    public List<MonthlyCount> getMonthlyCount(){
+    public Reporting createReport(Reporting reportingData, String userIdActor, ReportType reportType) {
+        System.out.println(reportingData.getContent().get(0));
+        User user = userService.findById(userIdActor);
+        Reporting reporting = reportingRepository.findByObjectId(reportingData.getObjectId());
+
+        if (reporting != null) {
+            if (!reporting.getUserIds().contains(userIdActor)) {
+                reporting.getUserIds().add(userIdActor);
+                reporting.getUsers().add(user);
+            }
+
+            if (!reporting.getContent().contains(reportingData.getContent().get(0))) {
+                reporting.getContent().add(reportingData.getContent().get(0));
+            }
+            ;
+            reporting.setIsResolved(false);
+        } else {
+            reporting = new Reporting();
+            reporting.setContent(reportingData.getContent());
+            reporting.setUserIds(new ArrayList<>());
+            reporting.getUserIds().add(userIdActor);
+            reporting.setUsers(new ArrayList<>());
+            reporting.getUsers().add(user);
+            reporting.setIsResolved(false);
+            reporting.setType(reportType);
+            reporting.setObjectId(reportingData.getObjectId());
+        }
+        switch (reportType) {
+            case POST -> postService.updatePostStatus(reportingData.getObjectId(), PostStatus.REPORTED);
+            case COMMENT -> updateStatusComment(reportingData.getObjectId(), "Reported");
+        }
+        List<User> admins = userService.findAllAdmin();
+        admins.forEach(admin -> {
+            Notification notification = new Notification();
+            notification.setType("REPORTING");
+            notification.setReceiverId(admin.getId());
+            Notification newNotification = notificationService.createNotification(notification, userIdActor);
+            simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
+        });
+        return reportingRepository.save(reporting);
+    }
+
+    public List<MonthlyCount> getMonthlyCount() {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.project()
                         .and(DateOperators.DateToString.dateOf("createdDate").toString("%Y-%m")).as("month"),
