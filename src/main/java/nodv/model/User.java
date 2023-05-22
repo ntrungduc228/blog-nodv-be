@@ -34,6 +34,7 @@ public class User {
     private List<String> topics;
     private Integer notificationsCount;
     private String bio;
+    private Integer otp;
 
     private List<String> followingId;
     private List<String> followerId;
