@@ -1,5 +1,6 @@
 package nodv.security;
 
+import nodv.exception.BadRequestException;
 import nodv.model.User;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("Incorrect email or password");
         }
+
+        if(!user.get().getIsActive() && user.get().getOtp() > 0){
+            throw new BadRequestException("Please verify your account");
+        }
+
         return UserPrincipal.create(user.get());
     }
 
