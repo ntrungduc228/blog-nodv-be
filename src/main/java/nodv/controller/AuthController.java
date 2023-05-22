@@ -1,9 +1,8 @@
 package nodv.controller;
 
+import nodv.exception.BadRequestException;
 import nodv.model.User;
-import nodv.payload.AuthRequestMobile;
-import nodv.payload.AuthResponse;
-import nodv.payload.LoginRequest;
+import nodv.payload.*;
 import nodv.repository.UserRepository;
 import nodv.security.TokenProvider;
 import nodv.service.UserService;
@@ -18,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000", "https://blog-nodv-web.vercel.app"}, allowCredentials = "true")
@@ -37,6 +38,34 @@ public class AuthController {
     @Autowired
     private TokenProvider tokenProvider;
 
+    @PostMapping("/verify/{id}/{otp}")
+    public ResponseEntity<?> verifyAccount(@PathVariable String id, @PathVariable Integer otp){
+//        Integer otp = Integer.parseInt(request.getParameter("otp"));
+        if(userService.verifyAccountSignUp(id, otp)){
+            String token = tokenProvider.createNewToken(id);
+            return ResponseEntity.ok(new AuthResponse(token));
+        }
+        throw new BadRequestException("Bad Request");
+    }
+
+    @PostMapping("/verify-forgot-password")
+    public ResponseEntity<?> verifyForgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
+        String id =userService.verifyForgotPassword(forgotPasswordRequest);
+        if(id!=null && !id.isEmpty()){
+            String token = tokenProvider.createNewToken(id);
+            return ResponseEntity.ok(new AuthResponse(token));
+        }
+        throw new BadRequestException("Bad Request");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> verifyAccount(HttpServletRequest request){
+        String email = request.getParameter("email");
+       userService.forgotPassword(email);
+        return ResponseEntity.ok("Send email "+ email +" successfully !!!");
+
+    }
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -50,6 +79,20 @@ public class AuthController {
         String token = tokenProvider.createToken(authentication);
         return ResponseEntity.ok(new AuthResponse(token));
     }
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> signUp(@RequestBody SignupRequest signupRequest, HttpServletRequest request) throws MalformedURLException {
+        SignUpResponse user = userService.signUp(signupRequest);
+        return ResponseEntity.ok(user);
+    }
+
+//    public String getURLBase(HttpServletRequest request) throws MalformedURLException {
+//
+//        URL requestURL = new URL(request.getRequestURL().toString());
+//        String port = requestURL.getPort() == -1 ? "" : ":" + requestURL.getPort();
+//        return requestURL.getProtocol() + "://" + requestURL.getHost() + port;
+//
+//    }
 
     @PostMapping("/mobile/auth-by-mobile")
     public ResponseEntity<?> authenticateByMobile(@RequestBody AuthRequestMobile authRequestMobile){

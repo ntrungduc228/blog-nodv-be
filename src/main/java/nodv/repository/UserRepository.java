@@ -14,7 +14,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
+
+    Boolean existsByUsername(String username);
+    Boolean existsByEmail(String email);
     List<UserProjection> findByFollowingIdContaining(String userId);
+
+    Optional<User> findByIdAndOtp(String id, Integer otp);
+    Optional<User> findByEmailAndOtpAndIsActive(String email, Integer otp, Boolean isActive);
+
+
+    @Query(value = "{ '_id' : ?0 }", fields = "{  'password': 0}")
+    Optional<User> findByIdExcludingPassword(String id);
+
 
     Page<UserProjection> findByIdIn(List<String> ids, Pageable pageable);
 

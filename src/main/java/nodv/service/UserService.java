@@ -1,11 +1,11 @@
 package nodv.service;
 
+import nodv.exception.BadRequestException;
 import nodv.exception.NotFoundException;
 import nodv.model.AuthProvider;
 import nodv.model.Role;
 import nodv.model.User;
-import nodv.payload.AuthRequestMobile;
-import nodv.payload.MonthlyCount;
+import nodv.payload.*;
 import nodv.projection.UserProjection;
 import nodv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +20,13 @@ import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UserService {
@@ -33,10 +35,80 @@ public class UserService {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    PasswordEncoder encoder;
+
     private final static Integer MAX_WARNING_COUNTS = 3;
 
     public Long countAllUsers() {
         return userRepository.count();
+    }
+
+    public String verifyForgotPassword(ForgotPasswordRequest forgotPasswordRequest){
+        Optional<User> userFind = userRepository.findByEmailAndOtpAndIsActive(forgotPasswordRequest.getEmail(), forgotPasswordRequest.getOtp(), true);
+        if(!userFind.isPresent()){
+            throw new NotFoundException("Verify failed");
+        }
+        userFind.get().setPassword(encoder.encode(forgotPasswordRequest.getPassword()));
+        userFind.get().setOtp(0);
+        userRepository.save(userFind.get());
+        return userFind.get().getId();
+    }
+
+    public void forgotPassword(String email){
+        Optional<User> userFind = userRepository.findByEmail(email);
+        if(!userFind.isPresent()){
+            throw new NotFoundException("User not found");
+        }
+        Integer bodyVerify = new Random().nextInt(900000) + 100000;
+        userFind.get().setOtp(bodyVerify);
+
+        String body ="Hi, " + userFind.get().getUsername() + "\n" +
+                "Please use this OTP to get new password: " + bodyVerify + "\n" +
+                "Have a good day!";
+
+        emailService.sendEmail(userFind.get().getEmail(), "NODV - Forgot password", body);
+        userRepository.save(userFind.get());
+    }
+
+    public Boolean verifyAccountSignUp(String userId, Integer otp){
+        Optional<User> userFind = userRepository.findByIdAndOtp(userId, otp);
+        if(!userFind.isPresent()) {
+            throw new NotFoundException("User not found");
+        }
+        userFind.get().setOtp(0);
+        userFind.get().setIsActive(true);
+        userRepository.save(userFind.get());
+
+        return true;
+    }
+
+    public SignUpResponse signUp(SignupRequest signupRequest) {
+
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            throw new BadRequestException("Email is already existing");
+        }
+        User user = new User();
+        user.setUsername(signupRequest.getUsername());
+        user.setEmail(signupRequest.getEmail());
+        user.setGender(signupRequest.isGender());
+        user.setPassword(encoder.encode(signupRequest.getPassword()));
+        user.setRole(Role.USER);
+        user.setIsActive(false);
+        Integer bodyVerify = new Random().nextInt(900000) + 100000;
+        user.setOtp(bodyVerify);
+        User newUser = userRepository.save(user);
+
+        String body ="Welcome, " + user.getUsername() + "\n" +
+                "Please use this OTP to active your account: " + bodyVerify + "\n" +
+                "Have a good day!";
+
+        emailService.sendEmail(user.getEmail(), "NODV - Verify account", body);
+        SignUpResponse signUpResponse = new SignUpResponse(newUser.getId(), newUser.getUsername(), newUser.getEmail(), newUser.getGender(), newUser.getRole(), newUser.getIsActive());
+        return signUpResponse;
     }
 
     public User registerNewUser(AuthRequestMobile authRequestMobile) {
@@ -238,6 +310,7 @@ public class UserService {
     public List<User> findAllAdmin() {
         return userRepository.findByRole(Role.ADMIN);
     }
+
     public List<User> findAllUsers() {
 //        var listUser = userRepository.findAll();
 //        for (var item:listUser){
@@ -254,14 +327,14 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User updateStatusUser(String id){
+    public User updateStatusUser(String id) {
         User user = findById(id);
         user.setIsActive(!user.getIsActive());
 
         return userRepository.save(user);
     }
 
-    public List<MonthlyCount> getMonthlyCount(){
+    public List<MonthlyCount> getMonthlyCount() {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.project()
                         .and(DateOperators.DateToString.dateOf("createdDate").toString("%Y-%m")).as("month"),

@@ -20,6 +20,17 @@ nodv:
 server:
   port: '8085'
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mymemory2409@gmail.com
+    password: emrvhsvrnwkkntzz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   main:
     allow-circular-references: true
   data:
