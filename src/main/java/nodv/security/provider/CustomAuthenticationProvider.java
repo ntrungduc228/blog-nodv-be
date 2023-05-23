@@ -1,6 +1,8 @@
 package nodv.security.provider;
 
+import nodv.exception.BadRequestException;
 import nodv.security.CustomUserDetailsService;
+import nodv.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,13 +28,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         String username = authentication.getName();
         String password = String.valueOf(authentication.getCredentials());
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        UserPrincipal userDetails = (UserPrincipal) customUserDetailsService.loadUserByUsername(username);
 
         // If user is not null, then we check if password matches
         if (userDetails != null){
             if (passwordEncoder.matches(password, userDetails.getPassword())){
                 // if it matches, then we can initialize UsernamePasswordAuthenticationToken.
                 // Attention! We used its 3 parameters constructor.
+
+                if(!userDetails.getActive() && userDetails.getOtp() > 0){
+                    throw new BadRequestException("Please verify your account");
+                }
+
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
                 return authenticationToken;

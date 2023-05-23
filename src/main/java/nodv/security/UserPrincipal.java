@@ -18,6 +18,8 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     private String password;
     private AuthProvider provider;
     private Boolean isNewUser;
+    private Boolean isActive;
+    private Integer otp;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
@@ -30,13 +32,15 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public UserPrincipal() {this.isNewUser = false;}
     public Boolean getIsNewUser() {return this.isNewUser;}
 
-    public UserPrincipal(String id, String email, String password, AuthProvider provider, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(String id, String email, String password, AuthProvider provider, Collection<? extends GrantedAuthority> authorities, Boolean isActive, Integer otp) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.provider = provider;
         this.authorities = authorities;
         this.isNewUser = false;
+        this.isActive = isActive;
+        this.otp = otp;
     }
 
     public static UserPrincipal create(User user) {
@@ -49,7 +53,9 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                 user.getEmail(),
                 user.getPassword(),
                 user.getProvider(),
-                authorities
+                authorities,
+                user.getIsActive(),
+                user.getOtp()
         );
     }
 
@@ -70,6 +76,22 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public AuthProvider getProvider() {return provider;};
 
     public void setIsNewUser(boolean isNewUser){this.isNewUser = isNewUser;}
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public Integer getOtp() {
+        return otp;
+    }
+
+    public void setOtp(Integer otp) {
+        this.otp = otp;
+    }
 
     @Override
     public String getPassword() {

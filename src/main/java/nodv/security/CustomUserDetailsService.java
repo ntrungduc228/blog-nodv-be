@@ -25,10 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Incorrect email or password");
         }
 
-        if(!user.get().getIsActive() && user.get().getOtp() > 0){
-            throw new BadRequestException("Please verify your account");
-        }
-
         return UserPrincipal.create(user.get());
     }
 
