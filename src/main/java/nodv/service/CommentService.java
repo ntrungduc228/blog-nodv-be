@@ -51,6 +51,7 @@ public class CommentService {
             throw new Exception("comment not found");
         }
         updateComment.get().setContent(comment.getContent());
+        updateComment.get().setImage(comment.getImage());
         return commentRepository.save(updateComment.get());
 
     }
@@ -84,9 +85,9 @@ public class CommentService {
         return commentRepository.save(updateUnlike.get());
     }
 
-    public Comment findById(String id){
+    public Comment findById(String id) {
         Optional<Comment> comment = commentRepository.findById(id);
-        if(!comment.isPresent()) {
+        if (!comment.isPresent()) {
             throw new NotFoundException("Comment is not found");
         }
         return comment.get();
@@ -117,6 +118,7 @@ public class CommentService {
     public List<ReportComment> findAllReportComment() {
         return reportCommentRepository.findAll();
     }
+
     public void updateStatusComment(String id, String status) {
         Optional<Comment> updateComment = commentRepository.findById(id);
         if (updateComment.isEmpty()) {
@@ -148,13 +150,13 @@ public class CommentService {
 
         Optional<Comment> comment = commentRepository.findById(id);
         ReportComment checkExist = reportCommentRepository.findByCommentId(id);
-        if (checkExist != null){
-            if(countValue(checkExist.getType(), 1) > 4){
+        if (checkExist != null) {
+            if (countValue(checkExist.getType(), 1) > 4) {
                 checkExist.setStatus(true);
                 reportCommentRepository.save(checkExist);
                 deleteComment(id);
                 throw new NotFoundException("Bi bao cao qua 5 lan !!");
-            }else {
+            } else {
                 listUserIdReported = checkExist.getUserIdReport();
                 listUserIdReported.add(userId);
                 listTypeReported = checkExist.getType();
@@ -164,10 +166,10 @@ public class CommentService {
                 checkExist.setType(listTypeReported);
                 checkExist.setUserIdReport(listUserIdReported);
                 checkExist.setUser(listUserReported);
-                checkExist.setCount(checkExist.getCount()+1);
+                checkExist.setCount(checkExist.getCount() + 1);
                 reportComment = checkExist;
             }
-        }else {
+        } else {
             listUserIdReported.add(userId);
             listTypeReported.add(type);
             listUserReported.add(user);
@@ -183,20 +185,24 @@ public class CommentService {
         return reportCommentRepository.save(reportComment);
 //        return countReport;
     }
-    public ReportComment findByIdAndType(String id){
+
+    public ReportComment findByIdAndType(String id) {
         int type = 1;
         Optional<ReportComment> listReport = reportCommentRepository.findById(id);
         return listReport.get();
     }
+
     public long countValue(List<Integer> list, int value) {
         return list.stream().filter(num -> num == value).count();
     }
-    public ReportComment updateReportComment(String id){
+
+    public ReportComment updateReportComment(String id) {
         Optional<ReportComment> reportComment = reportCommentRepository.findById(id);
         reportComment.get().setStatus(true);
         deleteComment(reportComment.get().getCommentId());
         return reportCommentRepository.save(reportComment.get());
     }
+
     public Page<Comment> findByFilter(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
         return commentRepository.findAll(pageable);
