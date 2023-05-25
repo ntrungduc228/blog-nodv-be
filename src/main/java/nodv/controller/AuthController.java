@@ -42,6 +42,7 @@ public class AuthController {
     public ResponseEntity<?> verifyAccount(@PathVariable Integer otp){
 //        Integer otp = Integer.parseInt(request.getParameter("otp"));
         String id = userService.verifyAccountSignUp(otp);
+        System.out.println("id " + id);
         if(id != null & !id.isEmpty()){
             String token = tokenProvider.createNewToken(id);
             return ResponseEntity.ok(new AuthResponse(token));
@@ -59,9 +60,8 @@ public class AuthController {
         throw new BadRequestException("Bad Request");
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<?> verifyAccount(HttpServletRequest request){
-        String email = request.getParameter("email");
+    @PostMapping("/forgot-password/{email}")
+    public ResponseEntity<?> verifyAccount(@PathVariable String email){
        userService.forgotPassword(email);
         return ResponseEntity.ok("Send email "+ email +" successfully !!!");
 
