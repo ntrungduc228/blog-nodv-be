@@ -21,7 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000", "https://blog-nodv-web.vercel.app"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://blog-nodv-web.vercel.app", "https://blog-nodv-admin.vercel.app"}, allowCredentials = "true")
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
