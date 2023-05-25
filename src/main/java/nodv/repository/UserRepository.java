@@ -21,7 +21,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByOtp(Integer otp);
 
     Optional<User> findByIdAndOtp(String id, Integer otp);
-    Optional<User> findByEmailAndOtpAndIsActive(String email, Integer otp, Boolean isActive);
+    Optional<User> findByOtpAndIsActive(Integer otp, Boolean isActive);
 
 
     @Query(value = "{ '_id' : ?0 }", fields = "{  'password': 0}")
