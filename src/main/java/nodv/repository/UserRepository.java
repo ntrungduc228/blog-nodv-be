@@ -18,6 +18,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
     List<UserProjection> findByFollowingIdContaining(String userId);
+    Optional<User> findByOtp(Integer otp);
 
     Optional<User> findByIdAndOtp(String id, Integer otp);
     Optional<User> findByEmailAndOtpAndIsActive(String email, Integer otp, Boolean isActive);

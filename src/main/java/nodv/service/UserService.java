@@ -74,16 +74,16 @@ public class UserService {
         userRepository.save(userFind.get());
     }
 
-    public Boolean verifyAccountSignUp(String userId, Integer otp){
-        Optional<User> userFind = userRepository.findByIdAndOtp(userId, otp);
+    public String verifyAccountSignUp(Integer otp){
+        Optional<User> userFind = userRepository.findByOtp(otp);
         if(!userFind.isPresent()) {
             throw new NotFoundException("User not found");
         }
         userFind.get().setOtp(0);
         userFind.get().setIsActive(true);
-        userRepository.save(userFind.get());
+        User user = userRepository.save(userFind.get());
 
-        return true;
+        return user.getId();
     }
 
     public SignUpResponse signUp(SignupRequest signupRequest) {
