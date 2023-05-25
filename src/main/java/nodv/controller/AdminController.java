@@ -163,7 +163,7 @@ public class AdminController {
         notification.setSenderId(userId);
         notification.setType("BLOCK_POST");
         notification.setIsRead(false);
-        notification.setLink("posts/" + id);
+        notification.setLink("/posts/" + id);
         Notification newNotification = notificationService.createNotification(notification, userId);
         simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
         return new ResponseEntity<>(post, HttpStatus.OK);
