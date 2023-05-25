@@ -77,6 +77,7 @@ public class PostService {
         post.setUser(user);
         post.setIsPublish(true);
         post.setTopics(topicService.checkAndCreateListTopic(post.getTopics()));
+        post.setStatus(PostStatus.NORMAL);
         return postRepository.save(post);
     }
 
@@ -102,7 +103,6 @@ public class PostService {
         postRepository.save(post.get());
         return post.get();
     }
-
 
     public void deletePost(String id, String userId) {
         Post post = findById(id, userId);
@@ -154,6 +154,10 @@ public class PostService {
         }
         if (title != null && !title.isEmpty()) {
             criteria.and("title").regex(title, "i");
+        }
+
+        if (authorId != null && !authorId.isEmpty()) {
+            criteria.and("user.id").is(authorId);
         }
 
         if (authorId != null && !authorId.isEmpty()) {
