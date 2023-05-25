@@ -160,10 +160,6 @@ public class PostService {
             criteria.and("user.id").is(authorId);
         }
 
-        if (authorId != null && !authorId.isEmpty()) {
-            criteria.and("user.id").is(authorId);
-        }
-
         if (id != null && !id.isEmpty()) {
             criteria.and("id").is(id);
         } else if (userId != null) {
