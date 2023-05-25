@@ -38,10 +38,11 @@ public class AuthController {
     @Autowired
     private TokenProvider tokenProvider;
 
-    @PostMapping("/verify/{id}/{otp}")
-    public ResponseEntity<?> verifyAccount(@PathVariable String id, @PathVariable Integer otp){
+    @PostMapping("/verify/{otp}")
+    public ResponseEntity<?> verifyAccount(@PathVariable Integer otp){
 //        Integer otp = Integer.parseInt(request.getParameter("otp"));
-        if(userService.verifyAccountSignUp(id, otp)){
+        String id = userService.verifyAccountSignUp(otp);
+        if(id != null & !id.isEmpty()){
             String token = tokenProvider.createNewToken(id);
             return ResponseEntity.ok(new AuthResponse(token));
         }
