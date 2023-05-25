@@ -86,7 +86,7 @@ public class AdminController {
     @GetMapping("/reporting/{id}")
     public ResponseEntity<?> getReportingById(@PathVariable String id, HttpServletRequest request) throws Exception {
         System.out.println("id " + id);
-        Reporting reporting =  reportingService.getReportingById(id);
+        Reporting reporting = reportingService.getReportingById(id);
         return new ResponseEntity<>(reporting, HttpStatus.OK);
     }
 
@@ -158,6 +158,13 @@ public class AdminController {
     public ResponseEntity<?> lockPost(@PathVariable String id, HttpServletRequest request) {
         String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         Post post = postService.updatePostStatus(id, PostStatus.LOCKED);
+        Notification notification = new Notification();
+        notification.setReceiverId(post.getUserId());
+        notification.setSenderId(userId);
+        notification.setType("BLOCK_POST");
+        notification.setIsRead(false);
+        Notification newNotification = notificationService.createNotification(notification, userId);
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
@@ -174,11 +181,13 @@ public class AdminController {
         List<User> users = userService.findAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
+
     @PatchMapping("/users/updateStatusUser/{id}")
     public ResponseEntity<?> updateStatusUser(HttpServletRequest request, @PathVariable String id) {
         User user = userService.updateStatusUser(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
     @GetMapping("/comments/list")
     public ResponseEntity<?> getComments(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
@@ -188,18 +197,20 @@ public class AdminController {
         Page<Comment> commentPage = commentService.findByFilter(page, limit);
         return new ResponseEntity<>(commentPage, HttpStatus.OK);
     }
+
     @GetMapping("/comment/{id}")
     public ResponseEntity<?> getCommentById(HttpServletRequest request, @PathVariable String id) {
 //        String userId = tokenProvider.getUserIdFromToken(tokenProvider.getJwtFromRequest(request));
         Comment comment = new Comment();
-        try{
+        try {
             comment = commentService.findById(id);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return new ResponseEntity<>("Deleted", HttpStatus.OK);
         }
 
         return new ResponseEntity<>(comment, HttpStatus.OK);
     }
+
     @DeleteMapping("/comment/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable String id) throws Exception {
         commentService.deleteComment(id);
