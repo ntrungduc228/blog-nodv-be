@@ -52,6 +52,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (user == null)
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
 
+        if (!user.getIsActive()) {
+            throw new OAuth2AuthenticationProcessingException("User has been blocked");
+        }
 
         return (OAuth2User) UserPrincipal.create(user, oAuth2User.getAttributes());
     }
