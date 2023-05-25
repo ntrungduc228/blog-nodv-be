@@ -113,18 +113,21 @@ public class AdminController {
         Object object;
         String link = "";
         String receiverId = "";
+        String type="";
 
         switch (reporting.getType()) {
             case POST -> {
                 object = (Post) postService.findById(reporting.getObjectId());
                 receiverId = ((Post) object).getUserId();
                 link = "posts/" + ((Post) object).getId();
+                type="WARNINGPOST";
                 break;
             }
             case COMMENT -> {
                 object = commentService.findById(reporting.getObjectId());
                 receiverId = ((Comment) object).getUserId();
                 link = "posts/" + ((Comment) object).getPostId();
+                type="WARNINGCOMMENT";
 
                 break;
             }
