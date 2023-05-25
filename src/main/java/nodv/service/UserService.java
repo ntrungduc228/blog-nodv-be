@@ -48,7 +48,7 @@ public class UserService {
     }
 
     public String verifyForgotPassword(ForgotPasswordRequest forgotPasswordRequest){
-        Optional<User> userFind = userRepository.findByEmailAndOtpAndIsActive(forgotPasswordRequest.getEmail(), forgotPasswordRequest.getOtp(), true);
+        Optional<User> userFind = userRepository.findByOtpAndIsActive(forgotPasswordRequest.getOtp(), true);
         if(!userFind.isPresent()){
             throw new NotFoundException("Verify failed");
         }
