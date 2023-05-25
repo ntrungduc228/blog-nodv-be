@@ -163,6 +163,11 @@ public class PostService {
         if (id != null && !id.isEmpty()) {
             criteria.and("id").is(id);
         } else if (userId != null) {
+            User user = userService.findById(userId);
+            boolean isAdmin = user.getRole() == Role.ADMIN;
+            if (!isAdmin) {
+                criteria.and("status").in(PostStatus.NORMAL, PostStatus.REPORTED);
+            }
             Optional<BlackList> blackList = blackListRepository.findByUserId(userId);
             blackList.ifPresent(list -> criteria.and("id").nin(list.getPostIds()));
         }
@@ -287,7 +292,7 @@ public class PostService {
         return postRepository.findByIdIn(ids, pageable);
     }
 
-    public List<MonthlyCount> getMonthlyCount(){
+    public List<MonthlyCount> getMonthlyCount() {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.project()
                         .and(DateOperators.DateToString.dateOf("lastModifiedDate").toString("%Y-%m")).as("month"),
@@ -301,7 +306,7 @@ public class PostService {
                 aggregation, "posts", MonthlyCount.class
         );
 
-       List<MonthlyCount> monthlyCounts = results.getMappedResults();
-       return monthlyCounts;
+        List<MonthlyCount> monthlyCounts = results.getMappedResults();
+        return monthlyCounts;
     }
 }
