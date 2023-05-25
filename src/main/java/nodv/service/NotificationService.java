@@ -37,7 +37,6 @@ public class NotificationService {
         notification.setSenderId(userId);
         notification.setReceiverId(receiverId);
         notification.setReceiver(receiver);
-
         return notificationRepository.save(notification);
     }
 
