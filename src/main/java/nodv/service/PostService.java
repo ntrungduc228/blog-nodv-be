@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,6 +44,11 @@ public class PostService {
 
     @Autowired
     BlackListRepository blackListRepository;
+
+    @Autowired
+    NotificationService notificationService;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     public Long countAllPosts() {
         return postRepository.count();
@@ -78,7 +84,21 @@ public class PostService {
         post.setIsPublish(true);
         post.setTopics(topicService.checkAndCreateListTopic(post.getTopics()));
         post.setStatus(PostStatus.NORMAL);
-        return postRepository.save(post);
+        Post newPost = postRepository.save(post);
+        user.getFollowerId().forEach(id -> {
+            Notification notification = new Notification();
+            notification.setLink("/posts/" + newPost.getId());
+            notification.setType("POST");
+            notification.setSenderId(userId);
+            notification.setReceiverId(id);
+            notification.setIsRead(false);
+            Notification newNotification = notificationService.createNotification(notification, userId);
+            simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
+            User receiver = userService.updateCountNotifications(newNotification.getReceiverId(), "true");
+            simpMessagingTemplate.convertAndSend("/topic/notifications/" + receiver.getId() + "/countNotifications", receiver);
+
+        });
+        return newPost;
     }
 
     public Post updatePost(String id, Post post, String userId) {
