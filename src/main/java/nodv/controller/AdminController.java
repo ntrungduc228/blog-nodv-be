@@ -140,7 +140,7 @@ public class AdminController {
             Notification notification = new Notification();
             notification.setReceiverId(receiverId);
             notification.setSenderId(userId);
-            notification.setType("WARNING");
+            notification.setType(type);
             notification.setIsRead(false);
             notification.setLink(link);
             Notification newNotification = notificationService.createNotification(notification, userId);
