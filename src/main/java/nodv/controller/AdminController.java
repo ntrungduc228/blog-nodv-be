@@ -169,6 +169,8 @@ public class AdminController {
         notification.setLink("/posts/" + id);
         Notification newNotification = notificationService.createNotification(notification, userId);
         simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
+        User receiver = userService.updateCountNotifications(newNotification.getReceiverId(), "true");
+        simpMessagingTemplate.convertAndSend("/topic/notifications/" + receiver.getId() + "/countNotifications", receiver);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
