@@ -85,19 +85,21 @@ public class PostService {
         post.setTopics(topicService.checkAndCreateListTopic(post.getTopics()));
         post.setStatus(PostStatus.NORMAL);
         Post newPost = postRepository.save(post);
-        user.getFollowerId().forEach(id -> {
-            Notification notification = new Notification();
-            notification.setLink("/posts/" + newPost.getId());
-            notification.setType("POST");
-            notification.setSenderId(userId);
-            notification.setReceiverId(id);
-            notification.setIsRead(false);
-            Notification newNotification = notificationService.createNotification(notification, userId);
-            simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
-            User receiver = userService.updateCountNotifications(newNotification.getReceiverId(), "true");
-            simpMessagingTemplate.convertAndSend("/topic/notifications/" + receiver.getId() + "/countNotifications", receiver);
+        if (user.getFollowerId() != null) {
+            user.getFollowerId().forEach(id -> {
+                Notification notification = new Notification();
+                notification.setLink("/posts/" + newPost.getId());
+                notification.setType("POST");
+                notification.setSenderId(userId);
+                notification.setReceiverId(id);
+                notification.setIsRead(false);
+                Notification newNotification = notificationService.createNotification(notification, userId);
+                simpMessagingTemplate.convertAndSend("/topic/notifications/" + newNotification.getReceiverId() + "/new", newNotification);
+                User receiver = userService.updateCountNotifications(newNotification.getReceiverId(), "true");
+                simpMessagingTemplate.convertAndSend("/topic/notifications/" + receiver.getId() + "/countNotifications", receiver);
+            });
+        }
 
-        });
         return newPost;
     }
 
