@@ -67,6 +67,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setEmail(oAuth2UserInfo.getEmail());
         user.setAvatar(oAuth2UserInfo.getImageUrl());
         user.setRole(Role.USER);
+        user.setIsActive(true);
+        user.setOtp(0);
         return userRepository.save(user);
     }
 
